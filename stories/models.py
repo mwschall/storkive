@@ -42,14 +42,22 @@ class Story(models.Model):
         max_length=150,
     )
     slug = models.SlugField(
-        allow_unicode=True,
         max_length=70,
+        allow_unicode=True,
         unique=True,
     )
     authors = models.ManyToManyField(Author)
-    added = models.DateField()
-    updated = models.DateField()
+    added = models.DateField(
+        blank=True,
+    )
+    updated = models.DateField(
+        blank=True,
+    )
     removed = models.DateField(
+        blank=True,
+    )
+    slant = models.CharField(
+        max_length=2,
         blank=True,
     )
     tags = models.ManyToManyField(Tag)
@@ -68,9 +76,16 @@ class Story(models.Model):
 
 
 class Chapter(models.Model):
+    LU_WORDS = 'w'
+    LU_CHARS = 'c'
+    LU_CHOICES = (
+        (LU_WORDS, 'words'),
+        (LU_CHARS, 'chars'),
+    )
     story = models.ForeignKey(
         'Story',
         on_delete=models.CASCADE,
+        related_name='chapters',
     )
     order = models.SmallIntegerField()
     # version = models.SmallIntegerField()
@@ -80,5 +95,12 @@ class Chapter(models.Model):
     authors = models.ManyToManyField(Author)
     added = models.DateField()
     updated = models.DateField()
-
-
+    length = models.IntegerField(
+        default=0,
+    )
+    length_unit = models.CharField(
+        max_length=1,
+        choices=LU_CHOICES,
+        default=LU_WORDS,
+    )
+    text = models.TextField()
