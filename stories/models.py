@@ -50,7 +50,6 @@ class Tag(models.Model):
     )
     name = models.CharField(
         max_length=50,
-        unique=True,
         blank=True,
     )
 
@@ -79,6 +78,7 @@ class Story(models.Model):
         blank=True,
         null=True,
     )
+    # TODO: generate this from chapter data?
     updated = models.DateField(
         blank=True,
         null=True,
@@ -111,16 +111,25 @@ class Chapter(models.Model):
         related_name='chapters',
         on_delete=models.CASCADE,
     )
+    ordinal = models.SmallIntegerField()
+    span = models.SmallIntegerField(
+        default=0,
+    )
     title = models.CharField(
         max_length=200,
     )
-    ordinal = models.SmallIntegerField()
-    span = models.SmallIntegerField(
-        default=1,
-    )
     # NOTE: these could be generated, or have meaning beyond what's in the DB
-    # added = models.DateField()
-    # updated = models.DateField()
+    added = models.DateField(
+        blank=True,
+        null=True,
+    )
+    updated = models.DateField(
+        blank=True,
+        null=True,
+    )
+
+    class Meta:
+        unique_together = ('story', 'ordinal')
 
 
 class ChapterVersion(models.Model):
@@ -134,10 +143,12 @@ class ChapterVersion(models.Model):
     FMT_HTML = 'html'
     FMT_MD = 'md'
     FMT_RST = 'rst'
+    FMT_TXT = 'txt'
     FMT_CHOICES = (
         (FMT_HTML, 'HTML'),
         (FMT_MD, 'Markdown'),
         (FMT_RST, 'reStructuredText'),
+        (FMT_TXT, 'Plain Text'),
     )
 
     chapter = models.ForeignKey(
@@ -156,9 +167,16 @@ class ChapterVersion(models.Model):
         choices=LU_CHOICES,
         default=LU_WORDS,
     )
-    text = models.TextField()
-    text_fmt = models.CharField(
-        max_length=4,
+    file_name = models.TextField()
+    file_fmt = models.CharField(
+        max_length=5,
         choices=FMT_CHOICES,
         default=FMT_HTML,
     )
+    file_hash = models.CharField(
+        max_length=64,
+        blank=True,
+    )
+
+    class Meta:
+        unique_together = ('chapter', 'added')
