@@ -63,10 +63,10 @@ class Story(models.Model):
         null=True,
     )
     title = models.CharField(
-        max_length=150,
+        max_length=100,
     )
     sort_title = models.CharField(
-        max_length=150,
+        max_length=100,
     )
     slug = models.SlugField(
         max_length=70,
@@ -105,34 +105,7 @@ class Story(models.Model):
         super(Story, self).save(*args, **kwargs)
 
 
-class Chapter(models.Model):
-    story = models.ForeignKey(
-        'Story',
-        related_name='chapters',
-        on_delete=models.CASCADE,
-    )
-    ordinal = models.SmallIntegerField()
-    span = models.SmallIntegerField(
-        default=0,
-    )
-    title = models.CharField(
-        max_length=200,
-    )
-    # NOTE: these could be generated, or have meaning beyond what's in the DB
-    added = models.DateField(
-        blank=True,
-        null=True,
-    )
-    updated = models.DateField(
-        blank=True,
-        null=True,
-    )
-
-    class Meta:
-        unique_together = ('story', 'ordinal')
-
-
-class ChapterVersion(models.Model):
+class Installment(models.Model):
     LU_WORDS = 'w'
     LU_CHARS = 'c'
     LU_CHOICES = (
@@ -151,10 +124,20 @@ class ChapterVersion(models.Model):
         (FMT_TXT, 'Plain Text'),
     )
 
-    chapter = models.ForeignKey(
-        'Chapter',
-        related_name='versions',
+    story = models.ForeignKey(
+        'Story',
+        related_name='installments',
         on_delete=models.CASCADE,
+    )
+    ordinal = models.SmallIntegerField()
+    span = models.SmallIntegerField(
+        default=0,
+    )
+    is_current = models.BooleanField(
+        default=True,
+    )
+    title = models.CharField(
+        max_length=125,
     )
     authors = models.ManyToManyField(Author)
     added = models.DateField()
@@ -167,11 +150,8 @@ class ChapterVersion(models.Model):
         choices=LU_CHOICES,
         default=LU_WORDS,
     )
-    file_name = models.TextField()
-    file_fmt = models.CharField(
-        max_length=5,
-        choices=FMT_CHOICES,
-        default=FMT_HTML,
+    file_name = models.TextField(
+        blank=True,
     )
     file_hash = models.CharField(
         max_length=64,
@@ -179,4 +159,4 @@ class ChapterVersion(models.Model):
     )
 
     class Meta:
-        unique_together = ('chapter', 'added')
+        unique_together = ('story', 'ordinal', 'added')
