@@ -55,6 +55,9 @@ class Tag(models.Model):
 
 
 class Story(models.Model):
+    TITLE_LEN = 150
+    SLUG_LEN = 70
+
     source = models.ForeignKey(
         'Library',
         related_name='stories',
@@ -63,13 +66,13 @@ class Story(models.Model):
         null=True,
     )
     title = models.CharField(
-        max_length=100,
+        max_length=TITLE_LEN,
     )
     sort_title = models.CharField(
-        max_length=100,
+        max_length=TITLE_LEN,
     )
     slug = models.SlugField(
-        max_length=70,
+        max_length=SLUG_LEN,
         unique=True,
         # allow_unicode=True,
     )
@@ -106,6 +109,8 @@ class Story(models.Model):
 
 
 class Installment(models.Model):
+    TITLE_LEN = 125
+
     LU_WORDS = 'w'
     LU_CHARS = 'c'
     LU_CHOICES = (
@@ -130,14 +135,11 @@ class Installment(models.Model):
         on_delete=models.CASCADE,
     )
     ordinal = models.SmallIntegerField()
-    span = models.SmallIntegerField(
-        default=0,
-    )
     is_current = models.BooleanField(
         default=True,
     )
     title = models.CharField(
-        max_length=125,
+        max_length=TITLE_LEN,
     )
     authors = models.ManyToManyField(Author)
     added = models.DateField()
