@@ -1,12 +1,9 @@
-import re
-
 from django.db import models
+from django.db.models import Min, Max
+from django.db.models.functions import Lower
+from django.utils.functional import cached_property
 
-
-def get_sort_name(name):
-    name = name.strip().lower()
-    name = re.sub(r'\s+', ' ', name)
-    return re.match(r'^(?:the |a |an )?(.*)$', name).group(1)
+from stories.util import get_sort_name
 
 
 class Library(models.Model):
@@ -33,7 +30,7 @@ class Author(models.Model):
     )
 
     class Meta:
-        ordering = ('slug',)
+        ordering = [Lower('name')]
 
     def __str__(self):
         return self.name
@@ -76,7 +73,7 @@ class Story(models.Model):
         unique=True,
         # allow_unicode=True,
     )
-    authors = models.ManyToManyField(Author)
+    authors = models.ManyToManyField(Author, related_name='stories')
     added = models.DateField(
         blank=True,
         null=True,
@@ -94,11 +91,53 @@ class Story(models.Model):
         max_length=2,
         blank=True,
     )
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, related_name='stories')
     synopsis = models.TextField()
 
+    @property
+    def author_list(self):
+        return self.authors.all()
+
+    @property
+    def tag_list(self):
+        return self.tags.all()
+
+    @property
+    def tag_abbrs(self):
+        return [t.abbr for t in self.tag_list]
+
+    @property
+    def num_installments(self):
+        return self.current_installments.count()
+
+    @cached_property
+    def current_installments(self):
+        # return [inst for inst in self.installments.all() if inst.is_current]
+        return self.installments.filter(is_current=True)
+
+    # @cached_property
+    # def installment_dates(self):
+    #     return self.installments.values('ordinal').annotate(
+    #         date_added=Min('added'),
+    #         date_updated=Max('added'),
+    #     )
+
+    @cached_property
+    def installment_dates(self):
+        return {
+            d['ordinal']: {
+                'date_added': d['date_added'],
+                'date_updated': d['date_updated'],
+            }
+            for d in
+            self.installments.values('ordinal').order_by('ordinal').annotate(
+                date_added=Min('added'),
+                date_updated=Max('added'),
+            )
+        }
+
     class Meta:
-        ordering = ('sort_title',)
+        ordering = ['sort_title']
         verbose_name_plural = "stories"
 
     def save(self, *args, **kwargs):
@@ -160,5 +199,34 @@ class Installment(models.Model):
         blank=True,
     )
 
+    @cached_property
+    def versions(self):
+        # NOTE: this only good if prefetching all versions of all whatevers
+        installments = self.story.installments.all()
+        versions = [inst for inst in installments if inst.ordinal == self.ordinal]
+        # return sorted(versions, key=lambda inst: inst.added)
+        return versions
+
+        # return self.story.installments.filter(ordinal=self.ordinal)
+
+    @property
+    def date_added(self):
+        dates = self.story.installment_dates[self.ordinal]
+        return dates['date_added']
+
+        # return self.versions[0].added
+
+    @property
+    def date_updated(self):
+        dates = self.story.installment_dates[self.ordinal]
+        added = dates['date_added']
+        updated = dates['date_updated']
+        return updated if updated != added else None
+
+        # added = self.date_added
+        # updated = self.versions[-1].added
+        # return updated if updated != added else None
+
     class Meta:
+        ordering = ['ordinal', 'added']
         unique_together = ('story', 'ordinal', 'added')

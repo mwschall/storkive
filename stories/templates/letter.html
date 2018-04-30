@@ -1,0 +1,23 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<h3 class="title">{{ page_title }}</h3>
+<div id="stories">{% for story in stories %}
+<div id="{{ story.slug }}" class="story">
+  {% spaceless %}
+  <div>{% include '_snippet-story-link.html' with story=story %}</div>
+  {% endspaceless %}
+  <div>{{ story.tag_abbrs|join:' ' }}</div>
+  {% spaceless %}
+  <div>{% include '_snippet-story-by.html' with authors=story.author_list %} </div>
+  {% endspaceless %}
+  <div class="ctime">Added {{ story.added|date:"d F Y" }}</div>
+  {% spaceless %}
+  {% if story.updated != story.added %}
+  <div class="mtime">Updated {{ story.updated|date:"d F Y" }}</div>
+  {% endif %}
+  {% endspaceless %}
+  <div><p>{{ story.synopsis }}</p></div>
+</div>{% endfor %}
+</div>
+{% endblock %}

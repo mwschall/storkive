@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ page_title|default:"Storkive Digital Library" }}</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Serif" />
+  <link rel="stylesheet" href="{% static 'base.css' %}" />
+  {% block skeletoncss %}{% endblock %}
+  {% block skeletonlinks %}{% endblock %}
+  {% block skeletonmeta %}{% endblock %}
+</head>
+<body>
+  {% block skeletonprecontent %}{% endblock %}
+  {% block skeletoncontent %}{% endblock %}
+  {% block skeletonpostcontent %}{% endblock %}
+</body>
+</html>

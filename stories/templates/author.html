@@ -1,0 +1,25 @@
+{% extends '_tmpl-standard.html' %}
+
+{% load stories_extras %}
+
+{% block content %}
+<h3 class="title">Author: {{ author.name }}</h3>
+<table id="index" class="index">
+<thead>
+<tr>
+  <th class="story">Story</th>
+  <th class="tags">Codes</th>
+  <th class="cdate">Added</th>
+</tr>
+</thead>
+<tbody>{% for story in stories %}
+<tr>
+  <td>{% spaceless %}
+    {% include '_snippet-story-link.html' with story=story %}
+  {% endspaceless %}</td>
+  <td>{{ story.tags|codes_cell }}</td>
+  <td>{{ story.added|date:"d M Y" }}</td>
+</tr>{% endfor %}
+</tbody>
+</table>
+{% endblock %}

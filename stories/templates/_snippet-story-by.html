@@ -1,0 +1,4 @@
+by {% for author in authors %}{% spaceless %}
+  {% endspaceless %}{% if not forloop.first %} and {% endif %}{% spaceless %}
+  {% endspaceless %}<a href="{% url 'author' slug=author.slug %}">{{ author.name }}</a>
+{% endfor %}

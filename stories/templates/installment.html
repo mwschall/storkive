@@ -1,0 +1,16 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block prenav %}
+{% include '_nav-story.html' %}
+{% include '_nav-author.html' %}
+{% include '_nav-arrows.html' %}
+{% endblock %}
+
+{#{% block content %}{{ body|safe }}{% endblock %}#}
+{% block skeletoncontent %}{{ body|safe }}{% endblock %}
+
+{% block postnav %}
+{% include '_nav-story.html' %}
+{% include '_nav-author.html' %}
+{% include '_nav-arrows.html' %}
+{% endblock %}

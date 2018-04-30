@@ -1,0 +1,335 @@
+article, aside, details, figcaption, figure, footer,
+header, hgroup, main, nav, section, summary {
+  display: block;
+}
+
+body {
+  background: rgb(230, 230, 234);
+  text-align: center;
+  font-family: 'PT Serif', Georgia, serif;
+}
+
+article {
+  color: black;
+  background: rgb(244, 244, 248);
+  margin: 1em auto;
+  padding: 2em 3em;
+  max-width: 36em;
+  font-family: 'PT Serif', Georgia, serif;
+  line-height: 155%;
+  text-align: left;
+  font-size: 98%;
+  text-rendering: optimizeLegibility;
+}
+
+@supports (hyphens: auto) {
+  article p {
+    hyphens: auto;
+    text-align: justify;
+  }
+}
+
+@supports (-webkit-hyphens: auto) {
+  article p {
+    -webkit-hyphens: auto;
+    text-align: justify;
+  }
+}
+
+@supports (-ms-hyphens: auto) {
+  article p {
+    -ms-hyphens: auto;
+    text-align: justify;
+  }
+}
+
+@supports (-moz-hyphens: auto) {
+  article p {
+    -moz-hyphens: auto;
+    text-align: justify;
+  }
+}
+
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  article p {
+    -ms-hyphens: auto;
+    text-align: justify;
+  }
+}
+
+.csshyphens article p {
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  -o-hyphens: auto;
+  text-align: justify;
+}
+
+#masthead {
+  font-family: Lucida Sans Unicode, Lucida Grande, sans-serif;
+  font-size: 200%;
+  font-weight: normal;
+  margin: 0;
+}
+
+#masthead a:link {
+  text-decoration: none;
+  border-bottom: 0;
+}
+
+
+.overstrike { text-decoration: line-through }
+
+.epigraph { margin-bottom: 0.75em; }
+
+.epigraph .bibl { text-align: right; margin-right: 4em; }
+.signed, .inlineDate { font-style: italic }
+
+.lg, .sp, .pick { margin-top: 1em }
+
+.address { margin: 1em }
+
+blockquote {
+  margin-left: 1.25em;
+  margin-right: 2em;
+  border-left: 3px solid rgb(230, 230, 234);
+  padding-left: 0.75em;
+}
+
+nav {
+  font-family: Lucida Sans Unicode, Lucida Grande, sans-serif;
+  font-size: 75%;
+  margin: 0.5em;
+}
+
+.stage { font-style: italic }
+em em   { font-style: normal }
+em em em  { font-style: italic }
+.form { font-weight: bold }
+
+.castItem .name { font-style: italic }
+
+pre, kbd, .typewriter { font-family: courier new, courier, monospace }
+
+
+h3 {
+  font-size: 140%;
+  margin-top: 0.1em;
+  margin-bottom: 0.2em;
+  font-weight: normal;
+}
+
+section h3 {
+  font-size: 130%;
+}
+
+h3.email {
+  font-size: 110%;
+}
+
+p {
+  margin-top: 0.25em;
+  margin-bottom: 0;
+  text-indent: 2em;
+}
+
+p:first-of-type {
+  text-indent: 0;
+}
+
+h3 + p, h3 + section, h3 + .salute {
+  margin-top: 0.75em;
+}
+
+h3.email + p, h3.email + .salute {
+  margin-top: 2em;
+}
+
+p + .trailer, section + .trailer {
+  margin-top: 0.75em;
+}
+
+p + .salute, p + .signed {
+  margin-top: 1em;
+}
+
+section + section {
+  margin-top: 2em;
+}
+
+.milestone {
+  display: block;
+  text-align: center;
+  font-size: 130%;
+  letter-spacing: 1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+header section, footer section, .note {
+  background: rgb(230, 230, 234);
+  padding: 0.5em;
+}
+
+header, footer {
+  font-size: 95%;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+#datecol {
+  width: 11em;
+}
+
+div.indented {
+  margin-left: 2em;
+}
+
+dt {
+  float: left;
+  margin-right: 0.5em;
+}
+
+.screenplay {
+  font-family: 'Courier New', Courier, monospace;
+  text-indent: 0;
+  margin-left: 1em
+}
+
+.screenplay dl {
+  margin-right: 4em;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.screenplay dt {
+  float: none;
+  display: block;
+  text-align: center;
+  font-style: normal;
+  font-weight: normal;
+}
+
+
+.screenplay .stage {
+  display: block;
+}
+
+.screenplay div.stage {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.screenplay p {
+  text-indent: 0;
+}
+
+.orth {
+  font-weight: bold;
+}
+
+.form {
+  float: left;
+  margin-right: 0.5em;
+}
+
+table {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-spacing: 0;
+}
+
+
+th.cdate, th.mdate {
+  width: 6.5em;
+}
+
+th.wc {
+  width: 7em;
+}
+
+table.index {
+  width: 120%;
+  margin-left: -3em;
+  margin-right: -3em;
+  margin-top: 1.5em;
+}
+
+.index tr:nth-child(even) {
+  background: rgb(230, 230, 234);
+}
+
+.index td, .index th {
+  padding: 10px 5px;
+}
+
+.index td:first-child, .index th:first-child {
+  padding-left: 3em;
+}
+
+.index td:last-child, .index th:last-child {
+  padding-right: 3em;
+}
+
+.index th {
+  text-align: left;
+  font-weight: normal;
+}
+
+
+
+div.story {
+  width: 120%;
+  margin-left: -3em;
+  margin-right: -3em;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+div.story div {
+  padding-left: 3em;
+  padding-right: 3em;
+}
+
+div.story:nth-child(even) {
+  background: rgb(230, 230, 234);
+}
+
+a:link {
+  text-decoration: none;
+  color: black;
+}
+
+article a:link {
+  background: rgb(216, 216, 216);
+  background: rgba(128, 128, 133, 0.25);
+}
+
+.index a:link {
+  background: none;
+}
+
+.index a:hover {
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}
+
+a:visited {
+  color: black;
+}
+
+a:hover {
+  color: white;
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}
+
+article a:visited {
+  color: rgb(72, 61, 139);
+}
+
+article a:hover {
+  color: white;
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}

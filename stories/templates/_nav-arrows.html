@@ -1,0 +1,11 @@
+<nav class="arrows">
+{% if prev %}
+  <a href="{% url 'installment' story.slug prev %}">← </a>
+{% endif %}
+{% if ordinal and num_installments > 1 %}
+  {{ ordinal }} of {{ num_installments }}
+{% endif %}
+{% if next %}
+  <a href="{% url 'installment' story.slug next %}"> →</a>
+{% endif %}
+</nav>

@@ -1,0 +1,51 @@
+{% extends '_tmpl-standard.html' %}
+
+{% load stories_extras %}
+
+{% block prenav %}
+{% include '_nav-arrows.html' %}
+{% endblock %}
+
+{% block content %}
+<h3 class="title">{{ story.title }}</h3>
+<h3 class="byline">{% spaceless %}
+  {% include '_snippet-story-by.html' with authors=story.author_list %}
+{% endspaceless %}</h3>
+<h3 class="dateline">Added {{ story.added|date:"d F Y" }}</h3>
+{% if story.updated != story.added %}
+<h3 class="dateline">Updated {{ story.updated|date:"d F Y" }}</h3>
+{% endif %}
+<div class="storyCodes">
+{% for abbr in story.tag_abbrs %}
+  <a href="{% url 'tag' abbr=abbr %}">{{ abbr }}</a>
+{% endfor %}
+</div>
+<section class="synopsis">{{ story.synopsis }}</section>
+{% if chapter %}
+<div class="chapter">
+  <a href="{% url 'installment' slug=story.slug ordinal=1 %}">{{ chapter.title }}</a>
+  {% if chapter.length %}({{ chapter.length }} words){% endif %}
+</div>
+{% else %}
+<table id="index" class="index">
+  <thead>
+    <tr>
+      <th class="chapter">Chapter</th>
+      {% for h in headers %}<th class="{{ h.cls }}">{{ h.name }}</th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+  {% for inst in installments %}
+    <tr>
+      <td><a href="{% url 'installment' slug=story.slug ordinal=inst.ordinal %}">{{ inst.title }}</a></td>
+      {% for h in headers %}<td>{{ inst|index_cell:h.cls }}</td>{% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block postnav %}
+{% include '_nav-arrows.html' %}
+{% endblock %}

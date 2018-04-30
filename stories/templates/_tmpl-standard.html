@@ -1,0 +1,18 @@
+{% extends '_tmpl-base.html' %}
+
+{% block skeletonprecontent %}
+<h1 id="masthead"><a href="{% url 'index' %}">Storkive Digital Library</a></h1>
+{% include '_nav-site.html' %}
+{% block prenav %}{% endblock %}
+{% endblock %}
+
+{% block skeletoncontent %}
+<article>
+  {% block content %}{% endblock %}
+</article>
+{% endblock %}
+
+{% block skeletonpostcontent %}
+{% block postnav %}{% endblock %}
+{% include '_nav-site.html' %}
+{% endblock %}

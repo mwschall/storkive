@@ -1,0 +1,15 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<h3 class="title">Authors</h3>
+<table id="index" class="index">
+<tbody>
+{% for author in authors %}
+  <tr>
+    <td><a href="{% url 'author' author.slug %}">{{ author.name }}</a></td>
+    <td>{{ author.num_stories }} stor{{ author.num_stories|pluralize:"y,ies" }}</td>
+  </tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}
