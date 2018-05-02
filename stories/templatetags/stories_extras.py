@@ -1,4 +1,6 @@
 from django import template
+from django.template.defaultfilters import pluralize
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -27,17 +29,11 @@ def story_count(num):
     return repr(num) + (' story' if num == 1 else ' stories')
 
 
-# @register.filter(needs_autoescape=True)
-# def index_cell(inst, col, autoescape=True):
-#     if autoescape:
-#         esc = conditional_escape
-#     else:
-#         esc = lambda x: x
-#
-#     if col == 'chapter':
-#         url = reverse()
-#         result = '<a href="%s">%s</a>' % (url(inst['']), esc(inst['title']))
-#     else:
-#         result = '—'
-#
-#     return mark_safe(result)
+@register.filter(is_safe=True)
+def up_count(story, up_date):
+    if story.added == up_date:
+        result = '<strong> (new)</strong>'
+    else:
+        cnt = story.up_cnt
+        result = ' ({:d} new chapter{})'.format(cnt, pluralize(cnt))
+    return mark_safe(result)

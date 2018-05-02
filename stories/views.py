@@ -1,13 +1,15 @@
 import os.path
 
-from django.db.models import F, Count
+from django.db import models
+from django.db.models import F, Count, OuterRef, Subquery, Min, Exists
 from django.db.models.functions import Substr, Upper
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe
 
-from stories.models import Story, Author, Tag
-from stories.util import get_story_path, char_range
+from stories.expressions import SQCount
+from stories.models import Story, Author, Tag, Installment
+from stories.util import get_story_path
 from storkive import settings
 
 ONE_DAY = 24 * 60 * 60
@@ -19,16 +21,49 @@ def index(request):
 
 
 @require_safe
+@cache_page(ONE_DAY)
+def whats_new(request):
+    last_two = Story.objects.values_list('updated', flat=True).order_by('-updated').distinct()[:2]
+
+    def fetch_updates(date):
+        new_insts_exist = Installment.objects \
+            .order_by() \
+            .filter(story=OuterRef('pk'), added=date)
+
+        new_insts = Installment.objects \
+            .order_by() \
+            .filter(story_id=OuterRef('pk')) \
+            .values('ordinal') \
+            .annotate(ord_min=Min('added')) \
+            .filter(ord_min=date)
+
+        return Story.objects \
+            .annotate(inst_on_date=Exists(new_insts_exist)) \
+            .filter(inst_on_date=True) \
+            .annotate(up_cnt=SQCount(new_insts)) \
+            .prefetch_related('authors', 'tags') \
+            .all()
+
+    days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]
+
+    context = {
+        'page_title': 'Recent Additions',
+        'days': days,
+    }
+    return render(request, 'whats-new.html', context)
+
+
+@require_safe
 def letter_index(request):
     letters = Story.objects\
         .annotate(letter=Upper(Substr('sort_title', 1, 1)))\
         .values('letter')\
         .annotate(num_stories=Count('id', distinct=True))\
-        .order_by('letter')
+        .order_by('letter')\
+        .all()
     context = {
         'page_title': 'Titles',
-        #          TODO: temporary until sort_title is fixed
-        'letters': [l for l in letters if l['letter'] in list(char_range('A', 'Z'))]
+        'letters': letters,
     }
     return render(request, 'titles.html', context)
 
@@ -89,23 +124,18 @@ def tag_page(request, abbr):
     tag = get_object_or_404(Tag, abbr=abbr)
     stories = Story.objects.filter(tags__abbr=abbr)\
         .only('slug', 'title', 'slant')\
-        .prefetch_related('tags')
+        .prefetch_related('tags')\
+        .all()
     context = {
         'page_title': 'Categories; '+abbr,
         'tag': tag,
-        'stories': stories.all(),
+        'stories': stories,
     }
     return render(request, 'tag.html', context)
 
 
 @require_safe
 def story_page(request, slug):
-    # inst_choices = Installment.objects.filter(is_current=True).order_by('ordinal')
-    # inst_prefetch = Prefetch('installments', queryset=inst_choices)
-    # qs = Story.objects.prefetch_related('authors', inst_prefetch, 'tags')
-
-    # qs = Story.objects.prefetch_related('authors', 'installments', 'tags')
-
     qs = Story.objects.prefetch_related('authors', 'tags')
     story = get_object_or_404(qs, slug=slug)
     installments = story.current_installments

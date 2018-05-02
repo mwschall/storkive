@@ -50,6 +50,9 @@ class Tag(models.Model):
         blank=True,
     )
 
+    class Meta:
+        ordering = ['abbr']
+
 
 class Story(models.Model):
     TITLE_LEN = 150
@@ -142,7 +145,7 @@ class Story(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.sort_title:
-            self.sort_title = get_sort_name(self.title)
+            self.sort_title = get_sort_name(self.title)[:self.TITLE_LEN]
         self.full_clean()
         super(Story, self).save(*args, **kwargs)
 

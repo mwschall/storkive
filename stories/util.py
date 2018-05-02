@@ -11,8 +11,7 @@ def char_range(c1, c2):
 
 
 def get_sort_name(name):
-    name = name.strip().rstrip('.').lower()
-    # name = re.sub(r'[^\w\s-—]+', '', name)
+    name = name.strip().lstrip('.').lower()
     name = re.sub(r'\s+', ' ', name)
     name = re.sub(r'[\'‘’"“”(){}[\]]', '', name)
     name = re.sub(r'^(?:the |a |an )', '', name)
