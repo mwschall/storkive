@@ -1,8 +1,9 @@
 from django.db import models
 from django.db.models import Min, Max
-from django.db.models.functions import Lower
+from django.urls import reverse
 from django.utils.functional import cached_property
 
+from stories.managers import OrderedLowerManager
 from stories.util import get_sort_name
 
 
@@ -10,7 +11,17 @@ class Library(models.Model):
     name = models.CharField(
         max_length=150,
     )
+    abbr = models.CharField(
+        max_length=15,
+        blank=True,
+    )
     website = models.URLField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "libraries"
 
 
 class Author(models.Model):
@@ -29,11 +40,13 @@ class Author(models.Model):
         blank=True,
     )
 
-    class Meta:
-        ordering = [Lower('name')]
+    objects = OrderedLowerManager('name')
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('author', args=[str(self.slug)])
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -49,6 +62,9 @@ class Tag(models.Model):
         max_length=50,
         blank=True,
     )
+
+    def __str__(self):
+        return self.abbr
 
     class Meta:
         ordering = ['abbr']
@@ -139,9 +155,15 @@ class Story(models.Model):
             )
         }
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         ordering = ['sort_title']
         verbose_name_plural = "stories"
+
+    def get_absolute_url(self):
+        return reverse('story', args=[str(self.slug)])
 
     def save(self, *args, **kwargs):
         if not self.sort_title:
@@ -230,6 +252,12 @@ class Installment(models.Model):
         # updated = self.versions[-1].added
         # return updated if updated != added else None
 
+    def __str__(self):
+        return '{} [{:03d}] ~ {}'.format(self.story.title, self.ordinal, self.title)
+
     class Meta:
         ordering = ['ordinal', 'added']
         unique_together = ('story', 'ordinal', 'added')
+
+    def get_absolute_url(self):
+        return reverse('installment', args=[str(self.story.slug), int(self.ordinal)])
