@@ -7,7 +7,7 @@
 {% endblock %}
 
 {#{% block content %}{{ body|safe }}{% endblock %}#}
-{% block skeletoncontent %}{{ body|safe }}{% endblock %}
+{% block skeletoncontent %}{{ inst.file_as_html|safe }}{% endblock %}
 
 {% block postnav %}
 {% include '_nav-story.html' %}

@@ -216,13 +216,21 @@ class Installment(models.Model):
         choices=LU_CHOICES,
         default=LU_WORDS,
     )
-    file_name = models.TextField(
-        blank=True,
+    file = models.FileField(
+        # see: stories.util.story_path
+        # PREFIX + LETTER + 2xSLUG + ordinal + date + ext
+        max_length=15 + 2 + 2*(Story.SLUG_LEN+1) + 4 + 11 + 5
     )
-    file_hash = models.CharField(
+    checksum = models.CharField(
         max_length=64,
         blank=True,
     )
+
+    @property
+    def file_as_html(self):
+        with self.file.open(mode='rb') as f:
+            bytez = f.read()
+        return bytez.decode('utf-8')
 
     @cached_property
     def versions(self):

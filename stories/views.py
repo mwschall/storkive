@@ -1,7 +1,4 @@
-import os.path
-
-from django.db import models
-from django.db.models import F, Count, OuterRef, Subquery, Min, Exists
+from django.db.models import F, Count, OuterRef, Min, Exists
 from django.db.models.functions import Substr, Upper
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.cache import cache_page
@@ -9,8 +6,6 @@ from django.views.decorators.http import require_safe
 
 from stories.expressions import SQCount
 from stories.models import Story, Author, Tag, Installment
-from stories.util import get_story_path
-from storkive import settings
 
 ONE_DAY = 24 * 60 * 60
 
@@ -175,18 +170,14 @@ def installment_page(request, slug, ordinal):
     if num_installments > 1:
         title = title + ' ({:d} of {:d})'.format(ordinal, num_installments)
 
-    file_path = os.path.join(settings.DATA_DIR, get_story_path(story), inst.file_name)
-    with open(file_path, 'r', encoding='utf-8') as f:
-        body = f.read()
-
     context = {
         'page_title': title,
         'story': story,
+        'inst': inst,
         'authors': inst.authors.all(),
         'ordinal': ordinal,
         'prev': ordinal-1,
         'next': ordinal+1 if ordinal < num_installments else 0,
         'num_installments': num_installments,
-        'body': body,
     }
     return render(request, 'installment.html', context)

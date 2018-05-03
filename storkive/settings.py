@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'storages',
+
     'debug_toolbar',
 ]
 
@@ -156,4 +158,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-DATA_DIR = os.path.join(BASE_DIR, '_data')
+MEDIA_ROOT = os.path.join(BASE_DIR, '_data')

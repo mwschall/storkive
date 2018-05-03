@@ -1,4 +1,3 @@
-import os.path
 import re
 
 from num2words import num2words
@@ -23,12 +22,10 @@ def get_sort_name(name):
     return name
 
 
-def get_story_path(slug):
-    if not isinstance(slug, str):
-        try:
-            slug = slug.slug
-        except AttributeError:
-            slug = slug['slug']
-    letter = slug[0].upper()
-    letter = letter if re.match(r'[A-Z]', letter) else '_'
-    return os.path.join(letter, slug)
+def inst_path(slug, ordinal, added):
+    sort_dir = slug[0].upper()
+    sort_dir = sort_dir if re.match(r'[A-Z]', sort_dir) else '_'
+    file_name = '{}.{:03d}.{:%Y-%m-%d}.{}'.format(
+        slug, ordinal, added, 'html')
+    # NOTE: Scrapy file stores expect a standard path
+    return '/'.join((sort_dir, slug, file_name))
