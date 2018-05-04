@@ -7,7 +7,14 @@ BASE_DIR = cwd[:-9]  # chop off "settings/"
 # Security
 # https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
-SECRET_KEY = os.environ['SECRET_KEY']
+try:
+    SECRET_KEY = os.environ['SECRET_KEY']
+except KeyError:
+    import random
+    SECRET_KEY = ''.join([
+        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
+        for i in range(50)
+    ])
 
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
@@ -15,6 +22,12 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 X_FRAME_OPTIONS = 'DENY'
+
+# SECURITY WARNING: App Engine's security features ensure that it is safe to
+# have ALLOWED_HOSTS = ['*'] when the app is deployed. If you deploy a Django
+# app not on App Engine, make sure to set an appropriate host here.
+# See https://docs.djangoproject.com/en/1.10/ref/settings/
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -29,12 +42,12 @@ INSTALLED_APPS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'storkive',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.getenv('DATABASE_NAME', 'storkive'),
+        'USER': os.getenv('DATABASE_USER', 'postgres'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     },
 }
 

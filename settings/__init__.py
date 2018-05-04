@@ -18,7 +18,7 @@ def deep_update(from_dict, to_dict):
             to_dict[key] = value
 
 # this should be one of prod, qa, staging, dev. Default to dev for safety.
-env = os.environ.get('APP_ENV', 'dev')
+env = os.getenv('APP_ENV', 'dev')
 
 # try to load user specific settings
 uid = pwd.getpwuid(os.getuid())[0]
@@ -32,7 +32,9 @@ for module_name in modules:
         print('ERROR: Unable to import %s configuration: %s' % (module_name, e))
         raise
     except AttributeError as e:
-        if env == 'dev' and module_name == uid:
+        if env == 'prod' and module_name == uid:
+            continue
+        elif env == 'dev' and module_name == uid:
             print('WARNING: Unable to import %s dev configuration: does %s.py exist?' % (module_name, module_name))
         else:
             raise
@@ -46,4 +48,4 @@ for module_name in modules:
             module_settings[setting] = getattr(module, setting)
     deep_update(module_settings, locals())
 
-#print locals() # for debugging
+# print(locals())  # for debugging

@@ -1,0 +1,38 @@
+# Cloud Stuff
+.aws
+.gcloud
+
+# Misc
+.dockerignore
+.DS_Store
+.env
+env
+*.log
+*.sqlite3
+_*/
+
+# Souce Control
+.git
+.gitignore
+
+# Django
+static
+settings
+!settings/__init__.py
+!settings/common.py
+!settings/dev.py
+!settings/prod.py
+
+# Python
+__pycache__
+*.pyd
+*.pyo
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*,cover
