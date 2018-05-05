@@ -1,6 +1,8 @@
 import os
 
 # cwd is settings. determine project path
+from django.core.files.storage import FileSystemStorage
+
 cwd = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = cwd[:-9]  # chop off "settings/"
 
@@ -36,4 +38,14 @@ DATABASES = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
+
+class OverwritingFSStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        # NOTE: this is all kinds of unsafe
+        if os.path.exists(self.path(name)):
+            os.remove(self.path(name))
+        return name
+
+
+DEFAULT_FILE_STORAGE = 'settings.dev.OverwritingFSStorage'
 MEDIA_ROOT = os.path.join(BASE_DIR, '_data')
