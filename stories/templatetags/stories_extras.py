@@ -20,11 +20,6 @@ def index_cell(inst, col):
 
 
 @register.filter
-def codes_cell(tags):
-    return ' '.join([tag.abbr for tag in tags.all()])
-
-
-@register.filter
 def story_count(num):
     return repr(num) + (' story' if num == 1 else ' stories')
 

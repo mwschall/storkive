@@ -1,10 +1,16 @@
+from collections import Iterable
+
 from django.db import models
-from django.db.models import Min, Max
+from django.db.models import Min, Max, OuterRef, Subquery
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from stories.expressions import Concat
 from stories.managers import OrderedLowerManager
-from stories.util import get_sort_name
+from stories.util import get_sort_name, get_author_slug
+
+DEFAULT_AUTHOR_SEP = '|'
+DEFAULT_TAG_SEP = ' '
 
 
 class Library(models.Model):
@@ -28,6 +34,7 @@ class Author(models.Model):
     name = models.CharField(
         max_length=150,
     )
+    # TODO: verify uniqueness view Lower(slug)
     slug = models.SlugField(
         allow_unicode=True,
         max_length=70,
@@ -122,8 +129,29 @@ class Story(models.Model):
         return self.tags.all()
 
     @property
+    def author_dicts(self):
+        dicts = self._author_dicts
+        return dicts
+
+    @author_dicts.setter
+    def author_dicts(self, value):
+        self._author_dicts = [
+            {'name': name, 'slug': get_author_slug(name)}
+            for name in value.split(DEFAULT_AUTHOR_SEP)
+        ]
+
+    @property
     def tag_abbrs(self):
-        return [t.abbr for t in self.tag_list]
+        return self._tag_abbrs
+
+    @tag_abbrs.setter
+    def tag_abbrs(self, value):
+        if isinstance(value, str):
+            self._tag_abbrs = value.split(DEFAULT_TAG_SEP)
+        elif isinstance(value, Iterable):
+            self._tag_abbrs = value
+        else:
+            self._tag_abbrs = []
 
     @property
     def num_installments(self):
@@ -161,6 +189,24 @@ class Story(models.Model):
     class Meta:
         ordering = ['sort_title']
         verbose_name_plural = "stories"
+
+    @staticmethod
+    def authors_sq(separator=DEFAULT_AUTHOR_SEP):
+        return Subquery(Author.objects
+                        .order_by()
+                        .filter(stories__pk=OuterRef('pk'))
+                        .annotate(names=Concat('name', separator=separator))
+                        .values_list('names', flat=True)
+                        )
+
+    @staticmethod
+    def tags_sq(separator=DEFAULT_TAG_SEP):
+        return Subquery(Tag.objects
+                        .order_by()
+                        .filter(stories__pk=OuterRef('pk'))
+                        .annotate(abbrs=Concat('abbr', separator=separator))
+                        .values_list('abbrs', flat=True)
+                        )
 
     def get_absolute_url(self):
         return reverse('story', args=[str(self.slug)])

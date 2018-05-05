@@ -36,7 +36,8 @@ def whats_new(request):
             .annotate(inst_on_date=Exists(new_insts_exist)) \
             .filter(inst_on_date=True) \
             .annotate(up_cnt=SQCount(new_insts)) \
-            .prefetch_related('authors', 'tags') \
+            .annotate(author_dicts=Story.authors_sq(),
+                      tag_abbrs=Story.tags_sq()) \
             .all()
 
     days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]
@@ -66,10 +67,14 @@ def letter_index(request):
 @require_safe
 @cache_page(ONE_DAY, key_prefix='letter')
 def letter_page(request, letter):
-    qs = Story.objects.filter(sort_title__istartswith=letter).prefetch_related('authors', 'tags')
+    stories = Story.objects \
+        .filter(sort_title__istartswith=letter) \
+        .annotate(author_dicts=Story.authors_sq(),
+                  tag_abbrs=Story.tags_sq()) \
+        .iterator()
     context = {
         'page_title': 'Stories: ' + letter,
-        'stories': qs.all(),
+        'stories': stories,
     }
     return render(request, 'letter.html', context)
 
@@ -92,7 +97,7 @@ def author_page(request, slug):
     author = get_object_or_404(Author, slug=slug)
     stories = author.stories \
         .only('slug', 'title', 'slant', 'added', 'updated') \
-        .prefetch_related('tags')
+        .annotate(tag_abbrs=Story.tags_sq())
     context = {
         'page_title': author.name,
         'author': author,
@@ -119,7 +124,7 @@ def tag_page(request, abbr):
     tag = get_object_or_404(Tag, abbr=abbr)
     stories = Story.objects.filter(tags__abbr=abbr) \
         .only('slug', 'title', 'slant') \
-        .prefetch_related('tags') \
+        .annotate(tag_abbrs=Story.tags_sq()) \
         .all()
     context = {
         'page_title': 'Categories; '+abbr,
@@ -131,7 +136,8 @@ def tag_page(request, abbr):
 
 @require_safe
 def story_page(request, slug):
-    qs = Story.objects.prefetch_related('authors', 'tags')
+    qs = Story.objects.annotate(author_dicts=Story.authors_sq(),
+                                tag_abbrs=Story.tags_sq())
     story = get_object_or_404(qs, slug=slug)
     installments = story.current_installments
     context = {

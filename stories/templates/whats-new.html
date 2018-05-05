@@ -12,7 +12,7 @@
     {% endspaceless %}
     {% spaceless %}
     <div>
-      {% include '_snippet-story-by.html' with authors=story.author_list %}
+      {% include '_snippet-story-by.html' with story=story %}
       ({{ story.tag_abbrs|join:' ' }})
     </div>
     {% endspaceless %}

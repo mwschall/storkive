@@ -9,6 +9,14 @@ def char_range(c1, c2):
         yield chr(c)
 
 
+def get_author_slug(name):
+    name = re.sub(r'[,.?!&#‘"“”(){}[\]]', '', name)
+    name = re.sub(r'[\'’]', '-', name)
+    name = re.sub(r'\*', '_', name)
+    name = re.sub(r'[^A-Za-z0-9-_]', '-', name)
+    return name
+
+
 def get_sort_name(name):
     name = name.strip().lstrip('.').lower()
     name = re.sub(r'\s+', ' ', name)
