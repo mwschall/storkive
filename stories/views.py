@@ -50,11 +50,11 @@ def whats_new(request):
 
 @require_safe
 def letter_index(request):
-    letters = Story.objects\
-        .annotate(letter=Upper(Substr('sort_title', 1, 1)))\
-        .values('letter')\
-        .annotate(num_stories=Count('id', distinct=True))\
-        .order_by('letter')\
+    letters = Story.objects \
+        .annotate(letter=Upper(Substr('sort_title', 1, 1))) \
+        .values('letter') \
+        .annotate(num_stories=Count('id', distinct=True)) \
+        .order_by('letter') \
         .all()
     context = {
         'page_title': 'Titles',
@@ -76,9 +76,9 @@ def letter_page(request, letter):
 
 @require_safe
 def author_index(request):
-    authors = Author.objects\
-        .only('slug', 'name')\
-        .annotate(num_stories=Count('stories'))\
+    authors = Author.objects \
+        .only('slug', 'name') \
+        .annotate(num_stories=Count('stories')) \
         .iterator()
     context = {
         'page_title': 'Authors',
@@ -90,8 +90,8 @@ def author_index(request):
 @require_safe
 def author_page(request, slug):
     author = get_object_or_404(Author, slug=slug)
-    stories = author.stories\
-        .only('slug', 'title', 'slant', 'added', 'updated')\
+    stories = author.stories \
+        .only('slug', 'title', 'slant', 'added', 'updated') \
         .prefetch_related('tags')
     context = {
         'page_title': author.name,
@@ -117,9 +117,9 @@ def tag_index(request):
 @cache_page(ONE_DAY, key_prefix='tag')
 def tag_page(request, abbr):
     tag = get_object_or_404(Tag, abbr=abbr)
-    stories = Story.objects.filter(tags__abbr=abbr)\
-        .only('slug', 'title', 'slant')\
-        .prefetch_related('tags')\
+    stories = Story.objects.filter(tags__abbr=abbr) \
+        .only('slug', 'title', 'slant') \
+        .prefetch_related('tags') \
         .all()
     context = {
         'page_title': 'Categories; '+abbr,
@@ -160,10 +160,10 @@ def story_page(request, slug):
 def installment_page(request, slug, ordinal):
     qs = Story.objects.only('slug', 'title')
     story = get_object_or_404(qs, slug=slug)
-    inst = story.current_installments\
-        .filter(ordinal=ordinal)\
-        .annotate(story_title=F('story__title'))\
-        .prefetch_related('authors')\
+    inst = story.current_installments \
+        .filter(ordinal=ordinal) \
+        .annotate(story_title=F('story__title')) \
+        .prefetch_related('authors') \
         .get()
     num_installments = story.num_installments
     title = inst.story_title
