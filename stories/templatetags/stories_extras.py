@@ -1,8 +1,21 @@
 from django import template
 from django.template.defaultfilters import pluralize
+from django.utils.formats import date_format as djd_fmt
 from django.utils.safestring import mark_safe
 
 register = template.Library()
+
+
+# noinspection PyShadowingBuiltins
+@register.filter
+def long_fmt(value, format="d F Y"):
+    return djd_fmt(value, format=format) if value else ''
+
+
+# noinspection PyShadowingBuiltins
+@register.filter
+def short_fmt(value, format="d M Y"):
+    return djd_fmt(value, format=format) if value else ''
 
 
 @register.filter
@@ -27,8 +40,8 @@ def story_count(num):
 @register.filter(is_safe=True)
 def up_count(story, up_date):
     if story.added == up_date:
-        result = '<strong> (new)</strong>'
+        result = '<strong>(new)</strong>'
     else:
         cnt = story.up_cnt
-        result = ' ({:d} new chapter{})'.format(cnt, pluralize(cnt))
+        result = '({:d} new chapter{})'.format(cnt, pluralize(cnt))
     return mark_safe(result)

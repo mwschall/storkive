@@ -6,8 +6,9 @@
 {% include '_nav-arrows.html' %}
 {% endblock %}
 
-{#{% block content %}{{ body|safe }}{% endblock %}#}
-{% block skeletoncontent %}{{ inst.file_as_html|safe }}{% endblock %}
+{% block skeletoncontent %}
+{{ inst.file_as_html|safe }}
+{% endblock %}
 
 {% block postnav %}
 {% include '_nav-story.html' %}

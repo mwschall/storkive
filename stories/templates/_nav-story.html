@@ -1,3 +1,3 @@
-<nav class="story">
-  <a href="{% url 'story' story.slug %}">Story: {{ story.title }}</a>
-</nav>
+<nav class="story"><a href="{{ url('story', args=[story.slug]) }}">Story: {{
+  story.title
+}}</a></nav>

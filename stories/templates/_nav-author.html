@@ -1,6 +1,6 @@
 <nav class="author">
-{% for author in authors %}
-  {% if not forloop.first %} · {% endif %}
-  <a href="{% url 'author' slug=author.slug %}">Author: {{ author.name }}</a>
-{% endfor %}
+{%- for author in authors -%}
+  {% if loop.index > 1 %} · {% endif -%}
+  <a href="{{ url('author', args=[author.slug]) }}">Author: {{ author.name }}</a>
+{%- endfor -%}
 </nav>

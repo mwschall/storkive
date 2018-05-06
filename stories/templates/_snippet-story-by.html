@@ -1,4 +1,4 @@
-by {% for author in story.author_dicts %}{% spaceless %}
-  {% endspaceless %}{% if not forloop.first %} and {% endif %}{% spaceless %}
-  {% endspaceless %}<a href="{% url 'author' slug=author.slug %}">{{ author.name }}</a>
-{% endfor %}
+by {% for author in story.author_dicts -%}
+  {%- if loop.index > 1 %} and {% endif -%}
+  <a href="{{ url('author', args=[author.slug]) }}">{{ author.name }}</a>
+{%- endfor %}

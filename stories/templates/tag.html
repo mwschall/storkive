@@ -1,15 +1,13 @@
 {% extends '_tmpl-standard.html' %}
 
-{% load stories_extras %}
-
 {% block content %}
 <h3 class="title">Category: {{ tag.abbr }} — {{ tag.name }}</h3>
 <table id="index" class="index">
 <tbody>
 {% for story in stories %}
 <tr>
-  <td>{% include '_snippet-story-link.html' with story=story %}</td>
-  <td>{{ story.tag_abbrs|join:' ' }}</td>
+  <td>{% include '_snippet-story-link.html' %}</td>
+  <td>{{ ' '.join(story.tag_abbrs) }}</td>
 </tr>
 {% endfor %}
 </tbody>

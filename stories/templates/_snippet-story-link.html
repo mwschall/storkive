@@ -1,8 +1,3 @@
-{% spaceless %}
-
-{% load stories_extras %}
-
-<a class="{{ story.slant }}" href="{% url 'story' story.slug %}">
-  <cite>{{ story.title }}</cite>
-</a>{% if up_date %}{{ story|up_count:up_date }}{% endif %}
-{% endspaceless %}
+<a class="{{ story.slant }}" href="{{ url('story', args=[story.slug]) }}"><cite>{{
+  story.title
+}}</cite></a>{% if up_date %} {{ story|up_count(up_date.date) }}{% endif %}

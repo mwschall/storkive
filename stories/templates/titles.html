@@ -1,15 +1,16 @@
 {% extends '_tmpl-standard.html' %}
 
-{% load stories_extras %}
-
 {% block content %}
 <h3 class="title">{{ page_title }}</h3>
 <table id="index" class="index">
-<tbody>{% for l in letters %}
-<tr>
-  <td><a href="{% url 'letter' l.letter %}">{{ l.letter }}</a></td>
-   <td>{{ l.num_stories|story_count }}</td>
-</tr>{% endfor %}
+<tbody>
+{% for l in letters %}
+<tr><td><a href="{{ url('letter', args=[l.letter]) }}">{{
+  l.letter
+}}</a></td><td>{{
+  l.num_stories|story_count
+}}</td></tr>
+{% endfor %}
 </tbody>
 </table>
 {% endblock %}

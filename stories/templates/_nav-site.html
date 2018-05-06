@@ -1,6 +1,7 @@
 <nav class="site">
 {% for link in site_links %}
-  {% if not forloop.first %} · {% endif %}
   <a href="{{ link.href }}">{{ link.label }}</a>
+  {%- if loop.index != loop.length %} · {% endif %}
+
 {% endfor %}
 </nav>

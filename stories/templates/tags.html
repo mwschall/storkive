@@ -1,17 +1,14 @@
 {% extends '_tmpl-standard.html' %}
 
-{% load stories_extras %}
-
 {% block content %}
 <h3 class="title">{{ page_title }}</h3>
 <table id="index" class="index">
 <tbody>
 {% for tag in tags %}
-  <tr>
-{#    <td><a href="{% url 'tag' tag.abbr %}">{{ tag.abbr }} — {{ tag.name }}</a></td>#}
-    <td><a href="{% url 'tag' tag.abbr %}">{{ tag.abbr }}: {{ tag.name }}</a></td>
-    <td>{{ tag.num_stories|story_count }}</td>
-  </tr>
+<tr>
+  <td><a href="{{ url('tag', args=[tag.abbr]) }}">{{ tag.abbr }}: {{ tag.name }}</a></td>
+  <td>{{ tag.num_stories|story_count }}</td>
+</tr>
 {% endfor %}
 </tbody>
 </table>

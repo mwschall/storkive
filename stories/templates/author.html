@@ -1,7 +1,5 @@
 {% extends '_tmpl-standard.html' %}
 
-{% load stories_extras %}
-
 {% block content %}
 <h3 class="title">Author: {{ author.name }}</h3>
 <table id="index" class="index">
@@ -12,14 +10,14 @@
   <th class="cdate">Added</th>
 </tr>
 </thead>
-<tbody>{% for story in stories %}
+<tbody>
+{% for story in stories %}
 <tr>
-  <td>{% spaceless %}
-    {% include '_snippet-story-link.html' with story=story %}
-  {% endspaceless %}</td>
-  <td>{{ story.tag_abbrs|join:' ' }}</td>
-  <td>{{ story.added|date:"d M Y" }}</td>
-</tr>{% endfor %}
+  <td>{% include '_snippet-story-link.html' %}</td>
+  <td>{{ ' '.join(story.tag_abbrs) }}</td>
+  <td>{{ story.added|short_fmt }}</td>
+</tr>
+{% endfor %}
 </tbody>
 </table>
 {% endblock %}
