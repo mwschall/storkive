@@ -38,7 +38,7 @@ def whats_new(request):
             .annotate(up_cnt=SQCount(new_insts)) \
             .annotate(author_dicts=Story.authors_sq(),
                       tag_abbrs=Story.tags_sq()) \
-            .all()
+            .iterator()
 
     days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]
 
@@ -56,7 +56,7 @@ def letter_index(request):
         .values('letter') \
         .annotate(num_stories=Count('id', distinct=True)) \
         .order_by('letter') \
-        .all()
+        .iterator()
     context = {
         'page_title': 'Titles',
         'letters': letters,
@@ -125,7 +125,7 @@ def tag_page(request, abbr):
     stories = Story.objects.filter(tags__abbr=abbr) \
         .only('slug', 'title', 'slant') \
         .annotate(tag_abbrs=Story.tags_sq()) \
-        .all()
+        .iterator()
     context = {
         'page_title': 'Categories; '+abbr,
         'tag': tag,

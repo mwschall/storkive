@@ -53,6 +53,20 @@ ROOT_URLCONF = 'storkive.urls'
 
 TEMPLATES = [
     {
+        'BACKEND': 'django.template.backends.jinja2.Jinja2',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'environment': 'stories.jinja2.environment',
+            'keep_trailing_newline': True,
+            'lstrip_blocks': True,
+            'trim_blocks': True,
+            'context_processors': [
+                'stories.context_processors.site_processor',
+            ],
+        },
+    },
+    {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
         'APP_DIRS': True,
@@ -62,7 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'stories.context_processors.site_processor'
+                'stories.context_processors.site_processor',
             ],
         },
     },
