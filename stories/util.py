@@ -61,3 +61,46 @@ def inst_path(slug, ordinal, added):
     # TODO: make this not break on Windows
     #       form really depends on the django storage in use, or is that handled?
     return '/'.join((STORIES_DIR, sort_dir, slug, file_name))
+
+
+re_space_any = re.compile(r'\s+')
+re_squote = re.compile(r'(?:(^|\s)|(.))(["\'])(.|$)', re.M)
+
+
+def _quote_fancier(m):
+    # TODO: test this, please
+    # NOTE: account for: “Down the center path—“
+    style = ('‘', '’') if m.group(3) is '\'' else ('“', '”')
+    new_quote = style[0] if m.group(1) is not None else style[1]
+    repl = (m.group(1), m.group(2), new_quote, m.group(4))
+    return ''.join([s for s in repl if s])
+
+
+def fancy_quote(text):
+    return re.sub(re_squote, _quote_fancier, text)
+
+
+def plain_quote(text):
+    return re.sub(r'([‘’])|([“”])', lambda m: "'" if m.group(1) else '"', text)
+
+
+def fix_line_endings(text):
+    return re.sub(r'\r\n|\n\r|\r', '\n', text)
+
+
+def clean_whitespace(text, multiline=False):
+    text = text.strip()
+    if multiline:
+        text = fix_line_endings(text)
+        text = re.sub(r'[\f\v]', '\n', text)
+        text = re.sub(r' +', ' ', text)
+        # TODO: what about tabs?
+    else:
+        text = re.sub(r'\s+', ' ', text)
+    return text
+
+
+def clean_paragraph(text, multiline=False):
+    text = clean_whitespace(text, multiline)
+    text = fancy_quote(text)
+    return text

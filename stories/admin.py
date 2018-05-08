@@ -1,5 +1,7 @@
+from django import forms
 from django.contrib import admin
 
+from stories.forms import TextField
 from stories.models import Author, Installment, Story, Tag, Library
 
 
@@ -10,7 +12,8 @@ class LibraryAdmin(admin.ModelAdmin):
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ['name', 'slug']
+    exclude = ['slug']
 
 
 @admin.register(Tag)
@@ -19,11 +22,50 @@ class TagAdmin(admin.ModelAdmin):
     search_fields = ['abbr']
 
 
+class InstallmentAdminForm(forms.ModelForm):
+    file_as_html = TextField(
+        widget=forms.Textarea(attrs={'rows': 40, 'cols': 80}),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance', None)
+        # only populate if editing and not saving
+        # called from django.contrib.admin.ModelAdmin._changeform_view()
+        if instance and not len(args):
+            if not kwargs.get('initial'):
+                kwargs['initial'] = {}
+            kwargs['initial'].update({'file_as_html': instance.file_as_html})
+        super(InstallmentAdminForm, self).__init__(*args, **kwargs)
+
+    class Meta:
+        model = Installment
+        fields = (
+            'story',
+            'ordinal',
+            'title',
+            'authors',
+            'added',
+            'file_as_html',
+        )
+
+
 @admin.register(Installment)
 class InstallmentAdmin(admin.ModelAdmin):
-    search_fields = ['abbr']
+    list_display = ('story_str', 'added', 'title')
+    search_fields = ['story__slug', 'added']
+    form = InstallmentAdminForm
+    autocomplete_fields = ['story', 'authors']
 
-    autocomplete_fields = ['authors']
+    def get_queryset(self, request):
+        return super(InstallmentAdmin, self).get_queryset(request) \
+            .select_related('story') \
+            .order_by('story', 'ordinal', 'added')
+
+    def save_model(self, request, obj, form, change):
+        obj.file_as_html = form.cleaned_data['file_as_html']
+        # raise NotImplementedError
+        super(InstallmentAdmin, self).save_model(request, obj, form, change)
 
 
 class InstallmentInline(admin.TabularInline):
@@ -45,10 +87,6 @@ class InstallmentInline(admin.TabularInline):
     )
     show_change_link = True
 
-    # def get_queryset(self, request):
-    #     qs = super(InstallmentInline, self).get_queryset(request)
-    #     return qs.filter(is_current=True)
-
 
 @admin.register(Story)
 class StoryAdmin(admin.ModelAdmin):
@@ -57,6 +95,7 @@ class StoryAdmin(admin.ModelAdmin):
     search_fields = ['slug', 'title']
 
     autocomplete_fields = ['authors', 'tags']
+    exclude = ['sort_title']
     inlines = [
         InstallmentInline,
     ]

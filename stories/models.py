@@ -1,4 +1,5 @@
 from collections import Iterable
+from io import BytesIO
 
 from django.db import models
 from django.db.models import Min, Max, OuterRef, Subquery
@@ -7,7 +8,7 @@ from django.utils.functional import cached_property
 
 from stories.expressions import Concat
 from stories.managers import OrderedLowerManager
-from stories.util import get_sort_name, get_author_slug
+from stories.util import get_sort_name, get_author_slug, b64md5sum, inst_path
 
 DEFAULT_AUTHOR_SEP = '|'
 DEFAULT_TAG_SEP = ' '
@@ -34,7 +35,6 @@ class Author(models.Model):
     name = models.CharField(
         max_length=150,
     )
-    # TODO: verify uniqueness view Lower(slug)
     slug = models.SlugField(
         allow_unicode=True,
         max_length=70,
@@ -55,7 +55,26 @@ class Author(models.Model):
     def get_absolute_url(self):
         return reverse('author', args=[str(self.slug)])
 
+    def _perform_unique_checks(self, unique_checks):
+        errors = super(Author, self)._perform_unique_checks(unique_checks)
+        try:
+            slug = self.slug or get_author_slug(self.name)
+            conflict = Author.objects \
+                .filter(slug__iexact=slug) \
+                .exclude(pk=self.pk) \
+                .values_list('name', flat=True) \
+                .get()
+            err = self.unique_error_message(Author, ('name',))
+            err.message = 'Existing author "%s" maps to the same slug.' % conflict
+            errors.setdefault('name', []).append(err)
+        except Author.DoesNotExist:
+            pass
+
+        return errors
+
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = get_author_slug(self.name)
         self.full_clean()
         super(Author, self).save(*args, **kwargs)
 
@@ -117,8 +136,14 @@ class Story(models.Model):
         max_length=2,
         blank=True,
     )
-    tags = models.ManyToManyField(Tag, related_name='stories')
-    synopsis = models.TextField()
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='stories',
+        blank=True,
+    )
+    synopsis = models.TextField(
+        blank=True,
+    )
 
     @property
     def author_list(self):
@@ -160,7 +185,7 @@ class Story(models.Model):
     @cached_property
     def current_installments(self):
         # return [inst for inst in self.installments.all() if inst.is_current]
-        return self.installments.filter(is_current=True)
+        return self.installments.filter(is_current=True).order_by('ordinal')
 
     # @cached_property
     # def installment_dates(self):
@@ -215,6 +240,8 @@ class Story(models.Model):
         if not self.sort_title:
             self.sort_title = get_sort_name(self.title)[:self.TITLE_LEN]
         self.full_clean()
+        if not self.updated:
+            self.updated = self.added
         super(Story, self).save(*args, **kwargs)
 
 
@@ -274,9 +301,27 @@ class Installment(models.Model):
 
     @property
     def file_as_html(self):
-        with self.file.open(mode='rb') as f:
-            bytez = f.read()
-        return bytez.decode('utf-8')
+        if self.file:
+            with self.file.open(mode='r') as f:
+                html = f.read()
+            return html
+        else:
+            return None
+
+    @file_as_html.setter
+    def file_as_html(self, value):
+        assert isinstance(value, str), 'Expected a string; cannot delete here.'
+
+        if not value:
+            return
+
+        buf = BytesIO(value.encode('utf-8'))
+        checksum = b64md5sum(buf)
+        if checksum != self.checksum:
+            buf.seek(0)
+            file_path = inst_path(self.story.slug, self.ordinal, self.added)
+            self.file.save(file_path, buf)
+            self.checksum = checksum
 
     @cached_property
     def versions(self):
@@ -306,12 +351,19 @@ class Installment(models.Model):
         # updated = self.versions[-1].added
         # return updated if updated != added else None
 
+    @property
+    def story_str(self):
+        return '{} [{:03d}]'.format(self.story.title, self.ordinal)
+
     def __str__(self):
         return '{} [{:03d}] ~ {}'.format(self.story.title, self.ordinal, self.title)
 
     class Meta:
-        ordering = ['ordinal', 'added']
         unique_together = ('story', 'ordinal', 'added')
 
     def get_absolute_url(self):
         return reverse('installment', args=[str(self.story.slug), int(self.ordinal)])
+
+    def save(self, *args, **kwargs):
+        # TODO: fixup is_current
+        super(Installment, self).save(*args, **kwargs)
