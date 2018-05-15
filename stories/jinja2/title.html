@@ -1,10 +1,15 @@
 {% extends '_tmpl-standard.html' %}
 
+{% block scripts %}
+{% include '_snippet-list-script.html' %}
+{% endblock %}
+
 {% block prenav %}
 {% include '_nav-arrows.html' %}
 {% endblock %}
 
 {% block content %}
+{% include '_snippet-list-picker.html' %}
 <h3 class="title">{{ story.title }}</h3>
 <h3 class="byline">{% include '_snippet-story-by.html' %}</h3>
 <h3 class="dateline">Added {{ story.added|long_fmt }}</h3>

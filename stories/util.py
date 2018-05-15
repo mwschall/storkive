@@ -29,6 +29,22 @@ def b64md5sum(file):
     return base64.b64encode(m.digest()).decode('utf-8')
 
 
+# NOTE: these aren't exact, but should be safe enough
+re_css_colors = [
+    re.compile(r'^#[0-9A-F]{3}|#[0-9A-F]{6}$', re.I),                 # hex
+    re.compile(r'^rgba?\(\d+,\d+,\d+(?:,(?:0?\.)?\d+)?\)$', re.I),    # rgb(a)
+    re.compile(r'^hsla?\(\d+,\d+%,\d+%(?:,(?:0?\.)?\d+)?\)$', re.I),  # hsl(a)
+    re.compile(r'^[a-z]{0,25}$', re.I),                               # names
+]
+
+
+def is_css_color(color):
+    color = re.sub(r'\s+', '', color)
+    for pat in re_css_colors:
+        if re.match(pat, color):
+            return True
+
+
 def get_author_slug(name):
     name = re.sub(r'[,.?!&#‘"“”(){}[\]]', '', name)
     name = re.sub(r'[\'’]', '-', name)

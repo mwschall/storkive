@@ -1,0 +1,19 @@
+{# ⭑ ⭒ ★ ☆ #}
+<aside class="user categorization" data-story="{{ story.slug }}">
+  {% if story.primary_list %}
+  <span class="primary star active"
+        style="color: {{ story.primary_list.color }};"
+        data-list="{{ story.primary_list.pk }}"></span>
+  {% else %}
+  <span class="primary toggle star"></span>
+  {% endif %}
+  <div class="lists">
+    {% for list in lists %}
+    <div class="list{% if list.pk in story_lists %} active{% endif %}"
+         data-list="{{ list.pk }}">
+      <span class="name">{{ list.name }}</span>
+      <span class="toggle star" style="color: {{ list.color }};"></span>
+    </div>
+    {% endfor %}
+  </div>
+</aside>

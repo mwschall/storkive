@@ -1,11 +1,13 @@
+from django.db import IntegrityError
 from django.db.models import F, Count, OuterRef, Min, Exists
 from django.db.models.functions import Substr, Upper
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.cache import cache_page
-from django.views.decorators.http import require_safe
+from django.views.decorators.http import require_safe, require_http_methods
 
 from stories.expressions import SQCount
-from stories.models import Story, Author, Tag, Installment
+from stories.models import Author, Installment, List, Story, Tag
 
 ONE_DAY = 24 * 60 * 60
 
@@ -146,6 +148,8 @@ def story_page(request, slug):
         'ordinal': 0,
         'next': 1,
         'num_installments': story.num_installments,
+        'lists': List.objects.all(),
+        'story_lists': [l.pk for l in story.lists],
     }
     if len(installments) == 1:
         context['chapter'] = installments[0]
@@ -187,3 +191,42 @@ def installment_page(request, slug, ordinal):
         'num_installments': num_installments,
     }
     return render(request, 'installment.html', context)
+
+
+@require_safe
+def list_index(request):
+    context = {
+        'page_title': 'Lists',
+        'lists': List.objects.all(),
+    }
+    return render(request, 'lists.html', context)
+
+
+@require_safe
+def list_page(request, pk):
+    user_list = get_object_or_404(List, pk=pk)
+    # TODO: put this Story link + tags query somewhere central
+    stories = Story.objects.filter(list_entries__list=user_list) \
+        .only('slug', 'title', 'slant') \
+        .annotate(tag_abbrs=Story.tags_sq()) \
+        .iterator()
+    context = {
+        'page_title': 'Lists',
+        'list': user_list,
+        'stories': stories,
+    }
+    return render(request, 'list.html', context)
+
+
+@require_http_methods(['PUT', 'DELETE'])
+def list_toggle(request, pk, slug):
+    try:
+        user_list = List.objects.get(pk=pk)
+        story = Story.objects.filter(slug=slug).only('pk').get()
+        if request.method == 'PUT':
+            story.list_entries.create(list=user_list)
+        else:
+            story.list_entries.filter(list=user_list).delete()
+        return HttpResponse(status=204)
+    except (List.DoesNotExist, Story.DoesNotExist, IntegrityError):
+        return HttpResponse(status=304)

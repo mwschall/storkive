@@ -1,0 +1,17 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<h3 class="title">{{ page_title -}}</h3>
+<table id="index" class="index">
+<tbody>
+{% for list in lists %}
+<tr>
+  <td><a href="{{ url('list', args=[list.pk]) }}">
+    {%- include '_snippet-list-name.html' -%}
+  </a></td>
+  <td>{{ list.num_entries|story_count }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

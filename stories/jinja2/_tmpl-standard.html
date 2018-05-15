@@ -1,5 +1,10 @@
 {% extends '_tmpl-base.html' %}
 
+{% block skeletonlinks %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="{{ static('base.js') }}"></script>
+{% endblock %}
+
 {% block skeletonprecontent %}
 <h1 id="masthead"><a href="{{ url('index') }}">Storkive Digital Library</a></h1>
 {% include '_nav-site.html' %}
@@ -15,4 +20,5 @@
 {% block skeletonpostcontent %}
 {% block postnav %}{% endblock %}
 {% include '_nav-site.html' %}
+{% block scripts %}{% endblock %}
 {% endblock %}

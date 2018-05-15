@@ -1,3 +1,7 @@
+html {
+  font-size: 16px;
+}
+
 article, aside, details, figcaption, figure, footer,
 header, hgroup, main, nav, section, summary {
   display: block;
@@ -12,9 +16,9 @@ body {
 article {
   color: black;
   background: rgb(244, 244, 248);
-  margin: 1em auto;
-  padding: 2em 3em;
-  max-width: 36em;
+  margin: 1rem auto;
+  padding: 2rem 3rem;
+  max-width: 36rem;
   font-family: 'PT Serif', Georgia, serif;
   line-height: 155%;
   text-align: left;
@@ -111,6 +115,85 @@ em em em  { font-style: italic }
 
 pre, kbd, .typewriter { font-family: courier new, courier, monospace }
 
+
+aside.categorization {
+  font-size: 1.375rem;
+  float: left;
+  width: 2rem;
+  margin-left: -2rem;
+  position: relative;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+aside .lists {
+  background: rgb(244, 244, 248);
+  position: absolute;
+  top: -0.375rem;
+  left: 2rem;
+  opacity: 0;
+  transform: translateX(-90%);
+  transition: all .25s ease;
+  padding: 0.375rem 0 0.375rem 0.5rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+aside:hover .lists {
+  opacity: 1;
+  transform: translateX(-100%);
+}
+
+aside .list {
+  margin-top: 0.1875rem;
+  cursor: pointer;
+}
+
+aside .list:first-child {
+  margin-top: 0;
+}
+
+aside .name {
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+.list:hover .name {
+  text-decoration: underline;
+}
+
+aside .star {
+  display: inline-block;
+  width: 2rem;
+  text-align: center;
+}
+
+aside .list .star {
+  margin-left: -.5rem;
+}
+
+.star {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.star::before {
+  content: "⭑"
+}
+
+.toggle.star::before {
+  content: "⭒"
+}
+
+.active.star::before,
+.active > .star::before {
+  content: "⭑"
+}
 
 h3 {
   font-size: 140%;

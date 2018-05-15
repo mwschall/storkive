@@ -1,6 +1,9 @@
 from collections import Iterable
 from io import BytesIO
 
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Min, Max, OuterRef, Subquery
 from django.urls import reverse
@@ -8,10 +11,62 @@ from django.utils.functional import cached_property
 
 from stories.expressions import Concat
 from stories.managers import OrderedLowerManager
-from stories.util import get_sort_name, get_author_slug, b64md5sum, inst_path
+from stories.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
 
 DEFAULT_AUTHOR_SEP = '|'
 DEFAULT_TAG_SEP = ' '
+
+
+# TODO: Come up with a more specific name for this functionality. Or don't.
+class List(models.Model):
+    name = models.CharField(
+        max_length=70,
+        unique=True,
+    )
+    color = models.CharField(
+        max_length=25,
+        default='inherit',
+    )
+    priority = models.SmallIntegerField(
+        default=0,
+    )
+    auto_sort = models.BooleanField(
+        default=True,
+    )
+
+    @property
+    def num_entries(self):
+        return self.entries.count()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-priority', 'name']
+
+    def clean_fields(self, exclude=None):
+        super(List, self).clean_fields(exclude)
+        if 'color' not in exclude:
+            if self.color and not is_css_color(self.color):
+                raise ValidationError({'color': ['Not a valid css color.']})
+
+
+class ListEntry(models.Model):
+    list = models.ForeignKey(
+        'List',
+        related_name='entries',
+        on_delete=models.CASCADE,
+    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    # ordinal = models.SmallIntegerField()
+    added_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        unique_together = ('list', 'content_type', 'object_id')
 
 
 class Library(models.Model):
@@ -144,6 +199,22 @@ class Story(models.Model):
     synopsis = models.TextField(
         blank=True,
     )
+    list_entries = GenericRelation(ListEntry, related_query_name='story')
+
+    @cached_property
+    def lists(self):
+        entries = self.list_entries \
+            .select_related('list') \
+            .order_by('-list__priority', 'list__name') \
+            .all()
+        return [entry.list for entry in entries]
+
+    @property
+    def primary_list(self):
+        try:
+            return self.lists[0]
+        except IndexError:
+            return None
 
     @property
     def author_list(self):

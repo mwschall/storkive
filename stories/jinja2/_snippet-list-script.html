@@ -1,0 +1,22 @@
+{{ csrf_input }}
+<script>
+  $('[data-list]').click(function() {
+    var $_ = $(this);
+    var $cntr = $_.closest('[data-story]');
+    var active = $_.hasClass('active');
+    $.ajax({
+      url: '/ajax' +
+           '/lists/' + $_.data('list') +
+           '/entries/' + $cntr.data('story'),
+      method: active ? 'DELETE' : 'PUT',
+    });
+    $_.toggleClass('active', !active);
+    var $new = $_.prevAll('.active');
+    if (!$new.length) {
+      $new = active ? $_.nextAll('.active') : $_;
+    }
+    $cntr.find('.primary')
+      .toggleClass('active', !!$new.length)
+      .css('color', $new.find('.star').css('color') || 'inherit');
+  })
+</script>

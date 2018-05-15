@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from stories.forms import TextField
-from stories.models import Author, Installment, Story, Tag, Library
+from stories.models import Author, Installment, Story, Tag, Library, List
 
 
 @admin.register(Library)
@@ -99,3 +99,8 @@ class StoryAdmin(admin.ModelAdmin):
     inlines = [
         InstallmentInline,
     ]
+
+
+@admin.register(List)
+class ListAdmin(admin.ModelAdmin):
+    list_display = ('name', 'priority', 'num_entries')
