@@ -4,10 +4,10 @@
 <h3 class="title">{{ page_title }}</h3>
 <table id="index" class="index">
 <tbody>
-{% for tag in tags %}
+{% for code in codes %}
 <tr>
-  <td><a href="{{ url('tag', args=[tag.abbr]) }}">{{ tag.abbr }}: {{ tag.name }}</a></td>
-  <td>{{ tag.num_stories|story_count }}</td>
+  <td><a href="{{ url('code', args=[code.abbr]) }}">{{ code.abbr }}: {{ code.name }}</a></td>
+  <td>{{ code.num_stories|story_count }}</td>
 </tr>
 {% endfor %}
 </tbody>

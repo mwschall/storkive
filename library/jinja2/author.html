@@ -6,7 +6,7 @@
 <thead>
 <tr>
   <th class="story">Story</th>
-  <th class="tags">Codes</th>
+  <th class="codes">Codes</th>
   <th class="cdate">Added</th>
 </tr>
 </thead>
@@ -14,7 +14,7 @@
 {% for story in stories %}
 <tr>
   <td>{% include '_snippet-story-link.html' %}</td>
-  <td>{{ ' '.join(story.tag_abbrs) }}</td>
+  <td>{{ ' '.join(story.code_abbrs) }}</td>
   <td>{{ story.added|short_fmt }}</td>
 </tr>
 {% endfor %}

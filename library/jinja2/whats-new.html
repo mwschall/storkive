@@ -8,7 +8,7 @@
 {% for story in up_date.updates %}
 <div class="story">
   <div>{% include '_snippet-story-link.html' %}</div>
-  <div>{%- include '_snippet-story-by.html' %} ({{ ' '.join(story.tag_abbrs) }})</div>
+  <div>{%- include '_snippet-story-by.html' %} ({{ ' '.join(story.code_abbrs) }})</div>
   <div><p>{{ story.synopsis }}</p></div>
 </div>
 {% endfor %}

@@ -17,8 +17,8 @@
 <h3 class="dateline">Updated {{ story.updated|long_fmt }}</h3>
 {% endif %}
 <div class="storyCodes">
-{% for abbr in story.tag_abbrs %}
-  <a href="{{ url('tag', args=[abbr]) }}">{{ abbr }}</a>
+{% for abbr in story.code_abbrs %}
+  <a href="{{ url('code', args=[abbr]) }}">{{ abbr }}</a>
 {% endfor %}
 </div>
 <section class="synopsis">{{ story.synopsis }}</section>

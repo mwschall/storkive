@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 
 from library.forms import TextField
-from library.models import Author, Installment, Story, Tag, Source, List
+from library.models import Author, Installment, Story, Code, Source, List
 
 
 @admin.register(Source)
@@ -16,8 +16,8 @@ class AuthorAdmin(admin.ModelAdmin):
     exclude = ['slug']
 
 
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+@admin.register(Code)
+class CodeAdmin(admin.ModelAdmin):
     list_display = ('abbr', 'name')
     search_fields = ['abbr']
 
@@ -94,7 +94,7 @@ class StoryAdmin(admin.ModelAdmin):
     list_filter = ('added', )
     search_fields = ['slug', 'title']
 
-    autocomplete_fields = ['authors', 'tags']
+    autocomplete_fields = ['authors', 'codes']
     exclude = ['sort_title']
     inlines = [
         InstallmentInline,

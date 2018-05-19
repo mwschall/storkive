@@ -7,7 +7,7 @@
 {% for story in stories %}
 <tr>
   <td>{% include '_snippet-story-link.html' %}</td>
-  <td>{{ ' '.join(story.tag_abbrs) }}</td>
+  <td>{{ ' '.join(story.code_abbrs) }}</td>
 </tr>
 {% endfor %}
 </tbody>

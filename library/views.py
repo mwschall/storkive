@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe, require_http_methods
 
 from library.expressions import SQCount
-from library.models import Author, Installment, List, Story, Tag
+from library.models import Author, Installment, List, Story, Code
 
 ONE_DAY = 24 * 60 * 60
 
@@ -39,7 +39,7 @@ def whats_new(request):
             .filter(inst_on_date=True) \
             .annotate(up_cnt=SQCount(new_insts)) \
             .annotate(author_dicts=Story.authors_sq(),
-                      tag_abbrs=Story.tags_sq()) \
+                      code_abbrs=Story.codes_sq()) \
             .iterator()
 
     days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]
@@ -72,7 +72,7 @@ def letter_page(request, letter):
     stories = Story.objects \
         .filter(sort_title__istartswith=letter) \
         .annotate(author_dicts=Story.authors_sq(),
-                  tag_abbrs=Story.tags_sq()) \
+                  code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
         'page_title': 'Stories: ' + letter,
@@ -99,7 +99,7 @@ def author_page(request, slug):
     author = get_object_or_404(Author, slug=slug)
     stories = author.stories \
         .only('slug', 'title', 'slant', 'added', 'updated') \
-        .annotate(tag_abbrs=Story.tags_sq())
+        .annotate(code_abbrs=Story.codes_sq())
     context = {
         'page_title': author.name,
         'author': author,
@@ -111,35 +111,35 @@ def author_page(request, slug):
 
 
 @require_safe
-def tag_index(request):
-    tags = Tag.objects.annotate(num_stories=Count('stories'))
+def code_index(request):
+    codes = Code.objects.annotate(num_stories=Count('stories'))
     context = {
-        'page_title': 'Categories',
-        'tags': tags,
+        'page_title': 'Codes',
+        'codes': codes,
     }
-    return render(request, 'tags.html', context)
+    return render(request, 'codes.html', context)
 
 
 @require_safe
-@cache_page(ONE_DAY, key_prefix='tag')
-def tag_page(request, abbr):
-    tag = get_object_or_404(Tag, abbr=abbr)
-    stories = Story.objects.filter(tags__abbr=abbr) \
+@cache_page(ONE_DAY, key_prefix='code')
+def code_page(request, abbr):
+    code = get_object_or_404(Code, abbr=abbr)
+    stories = Story.objects.filter(codes__abbr=abbr) \
         .only('slug', 'title', 'slant') \
-        .annotate(tag_abbrs=Story.tags_sq()) \
+        .annotate(code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
-        'page_title': 'Categories; '+abbr,
-        'tag': tag,
+        'page_title': 'Codes; '+abbr,
+        'code': code,
         'stories': stories,
     }
-    return render(request, 'tag.html', context)
+    return render(request, 'code.html', context)
 
 
 @require_safe
 def story_page(request, slug):
     qs = Story.objects.annotate(author_dicts=Story.authors_sq(),
-                                tag_abbrs=Story.tags_sq())
+                                code_abbrs=Story.codes_sq())
     story = get_object_or_404(qs, slug=slug)
     installments = story.current_installments
     context = {
@@ -205,10 +205,10 @@ def list_index(request):
 @require_safe
 def list_page(request, pk):
     user_list = get_object_or_404(List, pk=pk)
-    # TODO: put this Story link + tags query somewhere central
+    # TODO: put this Story link + codes query somewhere central
     stories = Story.objects.filter(list_entries__list=user_list) \
         .only('slug', 'title', 'slant') \
-        .annotate(tag_abbrs=Story.tags_sq()) \
+        .annotate(code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
         'page_title': 'Lists',

@@ -14,7 +14,7 @@ from library.managers import OrderedLowerManager
 from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
 
 DEFAULT_AUTHOR_SEP = '|'
-DEFAULT_TAG_SEP = ' '
+DEFAULT_CODE_SEP = ' '
 
 
 # TODO: Come up with a more specific name for this functionality. Or don't.
@@ -131,7 +131,7 @@ class Author(models.Model):
         super(Author, self).save(*args, **kwargs)
 
 
-class Tag(models.Model):
+class Code(models.Model):
     abbr = models.CharField(
         primary_key=True,
         max_length=4,
@@ -188,8 +188,8 @@ class Story(models.Model):
         max_length=2,
         blank=True,
     )
-    tags = models.ManyToManyField(
-        Tag,
+    codes = models.ManyToManyField(
+        Code,
         related_name='stories',
         blank=True,
     )
@@ -218,8 +218,8 @@ class Story(models.Model):
         return self.authors.all()
 
     @property
-    def tag_list(self):
-        return self.tags.all()
+    def code_list(self):
+        return self.codes.all()
 
     @property
     def author_dicts(self):
@@ -234,17 +234,17 @@ class Story(models.Model):
         ]
 
     @property
-    def tag_abbrs(self):
-        return self._tag_abbrs
+    def code_abbrs(self):
+        return self._code_abbrs
 
-    @tag_abbrs.setter
-    def tag_abbrs(self, value):
+    @code_abbrs.setter
+    def code_abbrs(self, value):
         if isinstance(value, str):
-            self._tag_abbrs = value.split(DEFAULT_TAG_SEP)
+            self._code_abbrs = value.split(DEFAULT_CODE_SEP)
         elif isinstance(value, Iterable):
-            self._tag_abbrs = value
+            self._code_abbrs = value
         else:
-            self._tag_abbrs = []
+            self._code_abbrs = []
 
     @property
     def num_installments(self):
@@ -293,8 +293,8 @@ class Story(models.Model):
                         )
 
     @staticmethod
-    def tags_sq(separator=DEFAULT_TAG_SEP):
-        return Subquery(Tag.objects
+    def codes_sq(separator=DEFAULT_CODE_SEP):
+        return Subquery(Code.objects
                         .order_by()
                         .filter(stories__pk=OuterRef('pk'))
                         .annotate(abbrs=Concat('abbr', separator=separator))
