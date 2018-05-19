@@ -1,6 +1,6 @@
 from django import forms
 
-from stories.util import clean_paragraph, fix_line_endings
+from library.util import clean_paragraph, fix_line_endings
 
 
 class NormalizingCharField(forms.CharField):

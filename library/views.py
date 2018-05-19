@@ -6,8 +6,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe, require_http_methods
 
-from stories.expressions import SQCount
-from stories.models import Author, Installment, List, Story, Tag
+from library.expressions import SQCount
+from library.models import Author, Installment, List, Story, Tag
 
 ONE_DAY = 24 * 60 * 60
 

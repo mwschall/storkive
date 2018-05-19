@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib import admin
 
-from stories.forms import TextField
-from stories.models import Author, Installment, Story, Tag, Source, List
+from library.forms import TextField
+from library.models import Author, Installment, Story, Tag, Source, List
 
 
 @admin.register(Source)

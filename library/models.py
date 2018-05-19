@@ -9,9 +9,9 @@ from django.db.models import Min, Max, OuterRef, Subquery
 from django.urls import reverse
 from django.utils.functional import cached_property
 
-from stories.expressions import Concat
-from stories.managers import OrderedLowerManager
-from stories.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
+from library.expressions import Concat
+from library.managers import OrderedLowerManager
+from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
 
 DEFAULT_AUTHOR_SEP = '|'
 DEFAULT_TAG_SEP = ' '
@@ -358,7 +358,7 @@ class Installment(models.Model):
         default=LU_WORDS,
     )
     file = models.FileField(
-        # see: stories.util.story_path
+        # see: library.util.story_path
         # PREFIX + LETTER + 2xSLUG + ordinal + date + ext
         max_length=15 + 2 + 2*(Story.SLUG_LEN+1) + 4 + 11 + 5
     )

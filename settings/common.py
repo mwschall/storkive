@@ -29,7 +29,7 @@ INTERNAL_IPS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'stories.apps.StoriesConfig',
+    'library.apps.LibraryConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,12 +57,12 @@ TEMPLATES = [
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
-            'environment': 'stories.jinja2.environment',
+            'environment': 'library.jinja2.environment',
             'keep_trailing_newline': True,
             'lstrip_blocks': True,
             'trim_blocks': True,
             'context_processors': [
-                'stories.context_processors.site_processor',
+                'library.context_processors.site_processor',
             ],
         },
     },
@@ -76,7 +76,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'stories.context_processors.site_processor',
+                'library.context_processors.site_processor',
             ],
         },
     },
