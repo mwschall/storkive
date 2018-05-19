@@ -69,7 +69,7 @@ class ListEntry(models.Model):
         unique_together = ('list', 'content_type', 'object_id')
 
 
-class Library(models.Model):
+class Source(models.Model):
     name = models.CharField(
         max_length=150,
     )
@@ -81,9 +81,6 @@ class Library(models.Model):
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name_plural = "libraries"
 
 
 class Author(models.Model):
@@ -156,7 +153,7 @@ class Story(models.Model):
     SLUG_LEN = 70
 
     source = models.ForeignKey(
-        'Library',
+        'Source',
         related_name='stories',
         on_delete=models.SET_NULL,
         blank=True,

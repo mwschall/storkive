@@ -2,11 +2,11 @@ from django import forms
 from django.contrib import admin
 
 from stories.forms import TextField
-from stories.models import Author, Installment, Story, Tag, Library, List
+from stories.models import Author, Installment, Story, Tag, Source, List
 
 
-@admin.register(Library)
-class LibraryAdmin(admin.ModelAdmin):
+@admin.register(Source)
+class SourceAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
 
