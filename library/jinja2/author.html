@@ -15,7 +15,7 @@
 <tr>
   <td>{% include '_snippet-story-link.html' %}</td>
   <td>{{ ' '.join(story.code_abbrs) }}</td>
-  <td>{{ story.added|short_fmt }}</td>
+  <td>{{ story.added_at|short_fmt }}</td>
 </tr>
 {% endfor %}
 </tbody>

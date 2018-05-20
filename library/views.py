@@ -20,18 +20,18 @@ def index(request):
 @require_safe
 @cache_page(ONE_DAY)
 def whats_new(request):
-    last_two = Story.objects.values_list('updated', flat=True).order_by('-updated').distinct()[:2]
+    last_two = Story.objects.values_list('updated_at', flat=True).order_by('-updated_at').distinct()[:2]
 
     def fetch_updates(date):
         new_insts_exist = Installment.objects \
             .order_by() \
-            .filter(story=OuterRef('pk'), added=date)
+            .filter(story=OuterRef('pk'), added_at=date)
 
         new_insts = Installment.objects \
             .order_by() \
             .filter(story_id=OuterRef('pk')) \
             .values('ordinal') \
-            .annotate(ord_min=Min('added')) \
+            .annotate(ord_min=Min('added_at')) \
             .filter(ord_min=date)
 
         return Story.objects \
@@ -98,7 +98,7 @@ def author_index(request):
 def author_page(request, slug):
     author = get_object_or_404(Author, slug=slug)
     stories = author.stories \
-        .only('slug', 'title', 'slant', 'added', 'updated') \
+        .only('slug', 'title', 'slant', 'added_at', 'updated_at') \
         .annotate(code_abbrs=Story.codes_sq())
     context = {
         'page_title': author.name,

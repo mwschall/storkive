@@ -171,16 +171,16 @@ class Story(models.Model):
         # allow_unicode=True,
     )
     authors = models.ManyToManyField(Author, related_name='stories')
-    added = models.DateField(
+    added_at = models.DateField(
         blank=True,
         null=True,
     )
     # TODO: generate this from chapter data?
-    updated = models.DateField(
+    updated_at = models.DateField(
         blank=True,
         null=True,
     )
-    removed = models.DateField(
+    removed_at = models.DateField(
         blank=True,
         null=True,
     )
@@ -258,8 +258,8 @@ class Story(models.Model):
     # @cached_property
     # def installment_dates(self):
     #     return self.installments.values('ordinal').annotate(
-    #         date_added=Min('added'),
-    #         date_updated=Max('added'),
+    #         date_added=Min('added_at'),
+    #         date_updated=Max('added_at'),
     #     )
 
     @cached_property
@@ -271,8 +271,8 @@ class Story(models.Model):
             }
             for d in
             self.installments.values('ordinal').order_by('ordinal').annotate(
-                date_added=Min('added'),
-                date_updated=Max('added'),
+                date_added=Min('added_at'),
+                date_updated=Max('added_at'),
             )
         }
 
@@ -308,8 +308,8 @@ class Story(models.Model):
         if not self.sort_title:
             self.sort_title = get_sort_name(self.title)[:self.TITLE_LEN]
         self.full_clean()
-        if not self.updated:
-            self.updated = self.added
+        if not self.updated_at:
+            self.updated_at = self.added_at
         super(Story, self).save(*args, **kwargs)
 
 
@@ -347,7 +347,7 @@ class Installment(models.Model):
         max_length=TITLE_LEN,
     )
     authors = models.ManyToManyField(Author)
-    added = models.DateField()
+    added_at = models.DateField()
     # TODO: published date?
     length = models.IntegerField(
         default=0,
@@ -387,7 +387,7 @@ class Installment(models.Model):
         checksum = b64md5sum(buf)
         if checksum != self.checksum:
             buf.seek(0)
-            file_path = inst_path(self.story.slug, self.ordinal, self.added)
+            file_path = inst_path(self.story.slug, self.ordinal, self.added_at)
             self.file.save(file_path, buf)
             self.checksum = checksum
 
@@ -396,7 +396,7 @@ class Installment(models.Model):
         # NOTE: this only good if prefetching all versions of all whatevers
         installments = self.story.installments.all()
         versions = [inst for inst in installments if inst.ordinal == self.ordinal]
-        # return sorted(versions, key=lambda inst: inst.added)
+        # return sorted(versions, key=lambda inst: inst.added_at)
         return versions
 
         # return self.story.installments.filter(ordinal=self.ordinal)
@@ -406,18 +406,18 @@ class Installment(models.Model):
         dates = self.story.installment_dates[self.ordinal]
         return dates['date_added']
 
-        # return self.versions[0].added
+        # return self.versions[0].added_at
 
     @property
     def date_updated(self):
         dates = self.story.installment_dates[self.ordinal]
-        added = dates['date_added']
-        updated = dates['date_updated']
-        return updated if updated != added else None
+        added_at = dates['date_added']
+        updated_at = dates['date_updated']
+        return updated_at if updated_at != added_at else None
 
-        # added = self.date_added
-        # updated = self.versions[-1].added
-        # return updated if updated != added else None
+        # added_at = self.date_added_at
+        # updated_at = self.versions[-1].added_at
+        # return updated_at if updated_at != added_at else None
 
     @property
     def story_str(self):
@@ -427,7 +427,7 @@ class Installment(models.Model):
         return '{} [{:03d}] ~ {}'.format(self.story.title, self.ordinal, self.title)
 
     class Meta:
-        unique_together = ('story', 'ordinal', 'added')
+        unique_together = ('story', 'ordinal', 'added_at')
 
     def get_absolute_url(self):
         return reverse('installment', args=[str(self.story.slug), int(self.ordinal)])

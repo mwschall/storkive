@@ -45,22 +45,22 @@ class InstallmentAdminForm(forms.ModelForm):
             'ordinal',
             'title',
             'authors',
-            'added',
+            'added_at',
             'file_as_html',
         )
 
 
 @admin.register(Installment)
 class InstallmentAdmin(admin.ModelAdmin):
-    list_display = ('story_str', 'added', 'title')
-    search_fields = ['story__slug', 'added']
+    list_display = ('story_str', 'added_at', 'title')
+    search_fields = ['story__slug', 'added_at']
     form = InstallmentAdminForm
     autocomplete_fields = ['story', 'authors']
 
     def get_queryset(self, request):
         return super(InstallmentAdmin, self).get_queryset(request) \
             .select_related('story') \
-            .order_by('story', 'ordinal', 'added')
+            .order_by('story', 'ordinal', 'added_at')
 
     def save_model(self, request, obj, form, change):
         obj.file_as_html = form.cleaned_data['file_as_html']
@@ -75,13 +75,13 @@ class InstallmentInline(admin.TabularInline):
 
     fields = (
         'ordinal',
-        'added',
+        'added_at',
         'title',
         'length',
     )
     readonly_fields = (
         'ordinal',
-        'added',
+        'added_at',
         'title',
         'length',
     )
@@ -90,8 +90,8 @@ class InstallmentInline(admin.TabularInline):
 
 @admin.register(Story)
 class StoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slant', 'added')
-    list_filter = ('added', )
+    list_display = ('title', 'slant', 'added_at')
+    list_filter = ('added_at', )
     search_fields = ['slug', 'title']
 
     autocomplete_fields = ['authors', 'codes']

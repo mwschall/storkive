@@ -39,7 +39,7 @@ def story_count(num):
 
 @register.filter(is_safe=True)
 def up_count(story, up_date):
-    if story.added == up_date:
+    if story.added_at == up_date:
         result = '<strong>(new)</strong>'
     else:
         cnt = story.up_cnt
