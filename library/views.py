@@ -56,7 +56,7 @@ def letter_index(request):
     letters = Story.objects \
         .annotate(letter=Upper(Substr('sort_title', 1, 1))) \
         .values('letter') \
-        .annotate(num_stories=Count('id', distinct=True)) \
+        .annotate(story_count=Count('id', distinct=True)) \
         .order_by('letter') \
         .iterator()
     context = {
@@ -85,7 +85,7 @@ def letter_page(request, letter):
 def author_index(request):
     authors = Author.objects \
         .only('slug', 'name') \
-        .annotate(num_stories=Count('stories')) \
+        .annotate(story_count=Count('stories')) \
         .iterator()
     context = {
         'page_title': 'Authors',
@@ -112,7 +112,7 @@ def author_page(request, slug):
 
 @require_safe
 def code_index(request):
-    codes = Code.objects.annotate(num_stories=Count('stories'))
+    codes = Code.objects.annotate(story_count=Count('stories'))
     context = {
         'page_title': 'Codes',
         'codes': codes,
@@ -147,7 +147,7 @@ def story_page(request, slug):
         'story': story,
         'ordinal': 0,
         'next': 1,
-        'num_installments': story.num_installments,
+        'installment_count': story.installment_count,
         'lists': List.objects.all(),
         'story_lists': [l.pk for l in story.lists],
     }
@@ -175,10 +175,10 @@ def installment_page(request, slug, ordinal):
         .annotate(story_title=F('story__title')) \
         .prefetch_related('authors') \
         .get()
-    num_installments = story.num_installments
+    installment_count = story.installment_count
     title = inst.story_title
-    if num_installments > 1:
-        title = title + ' ({:d} of {:d})'.format(ordinal, num_installments)
+    if installment_count > 1:
+        title = title + ' ({:d} of {:d})'.format(ordinal, installment_count)
 
     context = {
         'page_title': title,
@@ -187,8 +187,8 @@ def installment_page(request, slug, ordinal):
         'authors': inst.authors.all(),
         'ordinal': ordinal,
         'prev': ordinal-1,
-        'next': ordinal+1 if ordinal < num_installments else 0,
-        'num_installments': num_installments,
+        'next': ordinal+1 if ordinal < installment_count else 0,
+        'installment_count': installment_count,
     }
     return render(request, 'installment.html', context)
 

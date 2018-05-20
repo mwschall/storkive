@@ -103,4 +103,4 @@ class StoryAdmin(admin.ModelAdmin):
 
 @admin.register(List)
 class ListAdmin(admin.ModelAdmin):
-    list_display = ('name', 'priority', 'num_entries')
+    list_display = ('name', 'priority', 'entry_count')

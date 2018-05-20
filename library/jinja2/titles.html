@@ -8,7 +8,7 @@
 <tr><td><a href="{{ url('letter', args=[l.letter]) }}">{{
   l.letter
 }}</a></td><td>{{
-  l.num_stories|story_count
+  l.story_count|story_count
 }}</td></tr>
 {% endfor %}
 </tbody>

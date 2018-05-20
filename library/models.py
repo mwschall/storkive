@@ -35,7 +35,7 @@ class List(models.Model):
     )
 
     @property
-    def num_entries(self):
+    def entry_count(self):
         return self.entries.count()
 
     def __str__(self):
@@ -247,7 +247,7 @@ class Story(models.Model):
             self._code_abbrs = []
 
     @property
-    def num_installments(self):
+    def installment_count(self):
         return self.current_installments.count()
 
     @cached_property

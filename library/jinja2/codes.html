@@ -7,7 +7,7 @@
 {% for code in codes %}
 <tr>
   <td><a href="{{ url('code', args=[code.abbr]) }}">{{ code.abbr }}: {{ code.name }}</a></td>
-  <td>{{ code.num_stories|story_count }}</td>
+  <td>{{ code.story_count|story_count }}</td>
 </tr>
 {% endfor %}
 </tbody>

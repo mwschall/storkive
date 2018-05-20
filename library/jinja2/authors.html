@@ -8,7 +8,7 @@
 <tr><td><a href="{{ url('author', args=[author.slug]) }}">{{
   author.name
 }}</a></td><td>{{
-  author.num_stories|story_count
+  author.story_count|story_count
 }}</td></tr>
 {% endfor %}
 </tbody>
