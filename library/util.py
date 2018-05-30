@@ -2,6 +2,7 @@ import base64
 import hashlib
 import re
 
+import shortuuid
 from num2words import num2words
 
 
@@ -27,6 +28,15 @@ def b64md5sum(file):
             break
         m.update(d)
     return base64.b64encode(m.digest()).decode('utf-8')
+
+
+# don't use ambiguous characters, because reasons
+shortuuid.set_alphabet('23456789ABCDEFGHJKLMNPQRSTUVWXYZ')
+
+
+# https://github.com/skorokithakis/shortuuid
+def s_uuid(length=22):
+    return shortuuid.uuid()[:length]
 
 
 # NOTE: these aren't exact, but should be safe enough

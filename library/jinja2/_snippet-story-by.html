@@ -1,4 +1,6 @@
-by {% for author in story.author_dicts -%}
-  {%- if loop.index > 1 %} and {% endif -%}
+by {% for author in authors or story.author_dicts -%}
   <a href="{{ url('author', args=[author.slug]) }}">{{ author.name }}</a>
-{%- endfor %}
+  {%- if loop.index == loop.length - 1 %} and
+  {% elif loop.length > 1 and not loop.last %};
+  {% endif %}
+{% endfor %}

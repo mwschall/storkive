@@ -6,7 +6,7 @@
 <section>
 <h3 class="dateline">{{ up_date.date|long_fmt }}</h3>
 {% for story in up_date.updates %}
-<div class="story">
+<div class="story item">
   <div>{% include '_snippet-story-link.html' %}</div>
   <div>{%- include '_snippet-story-by.html' %} ({{ ' '.join(story.code_abbrs) }})</div>
   <div><p>{{ story.synopsis }}</p></div>

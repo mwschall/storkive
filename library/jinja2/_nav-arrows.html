@@ -1,13 +1,37 @@
-{%- if installment_count > 1 or not ordinal %}
+{% if saga or installment_count > 1 %}
 <nav class="arrows">
 {% if prev %}
-  <a href="{{ url('installment', args=[story.slug ,prev]) }}">← </a>
+  <a href="{{
+    url('saga_installment', args=[saga.slug, story.slug, prev])
+    if saga else
+    url('installment', args=[story.slug ,prev])
+  }}">← </a>
+{% elif saga and saga.prev_entry %}
+  <a href="{{
+    url('saga_installment', args=[saga.slug,
+                                  saga.prev_entry.slug,
+                                  saga.prev_entry.installment_count])
+  }}">« </a>
 {% endif %}
-{% if ordinal and installment_count > 1 %}
+{% if installment_count > 1 %}
   {{ ordinal }} of {{ installment_count }}
 {% endif %}
+{% if saga and saga.entry_count > 1 %}
+  {% if installment_count > 1 %}
+  in
+  {% endif %}
+  ( {{ saga.current_index }} of {{ saga.entry_count }} )
+{% endif %}
 {% if next %}
-  <a href="{{ url('installment', args=[story.slug, next]) }}"> →</a>
+  <a href="{{
+    url('saga_installment', args=[saga.slug, story.slug, next])
+    if saga else
+    url('installment', args=[story.slug, next])
+  }}"> →</a>
+{% elif saga and saga.next_entry %}
+  <a href="{{
+    url('saga_installment', args=[saga.slug, saga.next_entry.slug, 1])
+  }}"> »</a>
 {% endif %}
 </nav>
-{% endif -%}
+{% endif %}

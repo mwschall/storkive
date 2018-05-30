@@ -1,11 +1,37 @@
 {% extends '_tmpl-standard.html' %}
 
 {% block content %}
+<section class="info">
 <h3 class="title">Author: {{ author.name }}</h3>
+{% if author.email %}
+<h3>Email: <a class="email" href="{{ author.email|urlencode }}">{{ author.email }}</a></h3>
+{% endif %}
+{% if author.homepage %}
+<h3>Homepage:</h3>
+<p><a href="{{ author.homepage }}">{{ author.homepage }}</a></p>
+{% endif %}
+</section>
+{% if sagas %}
+<section class="sagas">
+<h3>Sagas:</h3>
+<div id="sagas">
+{% for saga in sagas %}
+<div class="saga item">
+  <div class="name"><a class="saga" href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a></div>
+  {% if saga.synopsis %}
+  <div><p>{{ saga.synopsis }}</p></div>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+</section>
+{% endif %}
+<section class="stories">
+<h3>Stories:</h3>
 <table id="index" class="index">
 <thead>
 <tr>
-  <th class="story">Story</th>
+  <th class="story">Title</th>
   <th class="codes">Codes</th>
   <th class="cdate">Added</th>
 </tr>
@@ -20,4 +46,5 @@
 {% endfor %}
 </tbody>
 </table>
+</section>
 {% endblock %}

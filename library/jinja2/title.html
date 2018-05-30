@@ -4,11 +4,9 @@
 {% include '_snippet-list-script.html' %}
 {% endblock %}
 
-{% block prenav %}
-{% include '_nav-arrows.html' %}
-{% endblock %}
-
 {% block content %}
+{% include '_snippet-saga-header.html' %}
+<section class="info">
 {% include '_snippet-list-picker.html' %}
 <h3 class="title">{{ story.title }}</h3>
 <h3 class="byline">{% include '_snippet-story-by.html' %}</h3>
@@ -16,15 +14,16 @@
 {% if story.updated_at != story.added_at %}
 <h3 class="dateline">Updated {{ story.updated_at|long_fmt }}</h3>
 {% endif %}
-<div class="storyCodes">
-{% for abbr in story.code_abbrs %}
-  <a href="{{ url('code', args=[abbr]) }}">{{ abbr }}</a>
-{% endfor %}
-</div>
+{% include '_snippet-code-links.html' %}
+</section>
 <section class="synopsis">{{ story.synopsis }}</section>
 {% if chapter %}
 <div class="chapter">
-  <a href="{{ url('installment', args=[story.slug, 1]) }}">{{ chapter.title }}</a>
+  <a href="{{
+    url('saga_installment', args=[saga.slug, story.slug, 1])
+    if saga else
+    url('installment', args=[story.slug, 1])
+  }}">{{ chapter.title }}</a>
   {%- if chapter.length %} ({{ chapter.length }} words)
   {% endif %}
 </div>
@@ -41,7 +40,11 @@
 <tbody>
 {% for inst in installments %}
 <tr>
-  <td><a href="{{ url('installment', args=[story.slug, inst.ordinal]) }}">{{
+  <td><a href="{{
+    url('saga_installment', args=[saga.slug, story.slug, inst.ordinal])
+    if saga else
+    url('installment', args=[story.slug, inst.ordinal])
+  }}">{{
     inst.title
   }}</a></td>
   {% for h in headers %}
@@ -52,8 +55,4 @@
 </tbody>
 </table>
 {% endif %}
-{% endblock %}
-
-{% block postnav %}
-{% include '_nav-arrows.html' %}
 {% endblock %}

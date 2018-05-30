@@ -1,3 +1,7 @@
-<a class="{{ story.slant }}" href="{{ url('story', args=[story.slug]) }}"><cite>{{
+<a class="{{ story.slant }}" href="{{
+  url('saga_story', args=[saga.slug, story.slug])
+  if saga else
+  url('story', args=[story.slug])
+}}"><cite>{{
   story.title
 }}</cite></a>{% if up_date %} {{ story|up_count(up_date.date) }}{% endif %}

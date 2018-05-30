@@ -4,17 +4,22 @@ from io import BytesIO
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import Min, Max, OuterRef, Subquery
 from django.urls import reverse
 from django.utils.functional import cached_property
 
 from library.expressions import Concat
 from library.managers import OrderedLowerManager
-from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
+from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color, s_uuid
 
+DEFAULT_SLUG_LEN = 8
 DEFAULT_AUTHOR_SEP = '|'
 DEFAULT_CODE_SEP = ' '
+
+
+def _slug_gen():
+    return s_uuid(DEFAULT_SLUG_LEN)
 
 
 # TODO: Come up with a more specific name for this functionality. Or don't.
@@ -435,3 +440,98 @@ class Installment(models.Model):
     def save(self, *args, **kwargs):
         # TODO: fixup is_current
         super(Installment, self).save(*args, **kwargs)
+
+
+class Saga(models.Model):
+    slug = models.CharField(
+        primary_key=True,
+        max_length=DEFAULT_SLUG_LEN,
+        default=_slug_gen,
+    )
+    name = models.CharField(
+        max_length=Story.TITLE_LEN,
+    )
+    sort_name = models.CharField(
+        max_length=Story.TITLE_LEN,
+    )
+    synopsis = models.TextField()
+    stories = models.ManyToManyField(
+        'Story',
+        through='SagaEntry',
+        related_name='sagas',
+    )
+
+    @property
+    def stories_ordered(self):
+        return self.stories.order_by('sagaentry__order')
+
+    @property
+    def entry_count(self):
+        if not hasattr(self, '_ec'):
+            self._ec = self.stories.count()
+        return self._ec
+
+    @entry_count.setter
+    def entry_count(self, value):
+        self._ec = value
+
+    @property
+    def current_index(self):
+        return self._ci
+
+    @current_index.setter
+    def current_index(self, value):
+        self._ci = value
+
+    @cached_property
+    def prev_entry(self):
+        if self.current_index and 1 < self.current_index:
+            # current_index is 1-indexed
+            return self.stories_ordered.all()[self.current_index-2]
+        return None
+
+    @cached_property
+    def next_entry(self):
+        if self.current_index and self.current_index < self.entry_count:
+            # current_index is 1-indexed
+            return self.stories_ordered.all()[self.current_index]
+        return None
+
+    def __str__(self):
+        return '{} [{}]'.format(self.name, self.slug)
+
+    class Meta:
+        ordering = ['sort_name']
+
+    def get_absolute_url(self):
+        return reverse('saga', args=[str(self.slug)])
+
+    def save(self, *args, **kwargs):
+        if not self.sort_name:
+            self.sort_name = get_sort_name(self.name)[:Story.TITLE_LEN]
+
+        # TODO: is this safe?
+        while True:
+            try:
+                super(Saga, self).save(*args, **kwargs)
+                break
+            except IntegrityError:
+                self.slug = _slug_gen()
+
+
+class SagaEntry(models.Model):
+    saga = models.ForeignKey(Saga, on_delete=models.CASCADE)
+    story = models.ForeignKey(Story, on_delete=models.CASCADE)
+    order = models.PositiveSmallIntegerField()
+    # TODO: for stories that already include a grouping in their titles?
+    # short_title = models.CharField(
+    #     max_length=Story.TITLE_LEN,
+    #     blank=True,
+    # )
+
+    def __str__(self):
+        return self.story.slug
+
+    class Meta(object):
+        ordering = ['order']
+        unique_together = ('saga', 'story')

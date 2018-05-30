@@ -1,0 +1,15 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<h3 class="title">{{ page_title }}</h3>
+<div id="index" class="index">
+{% for saga in sagas %}
+<div class="saga item">
+  <div class="name"><a class="saga" href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a></div>
+  {% if saga.synopsis %}
+  <div><p>{{ saga.synopsis }}</p></div>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+{% endblock %}

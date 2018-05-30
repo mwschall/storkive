@@ -1,0 +1,20 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<section class="info">
+<h3 class="title">Saga: {{ page_title }}</h3>
+<h3 class="byline">{% include '_snippet-story-by.html' %}</h3>
+{% include '_snippet-code-links.html' %}
+</section>
+{% if saga.synopsis %}
+<section class="synopsis">{{ saga.synopsis }}</section>
+{% endif %}
+<section id="stories" class="index">
+{% for story in stories %}
+<div id="{{ story.slug }}" class="story item">
+  <div>{% include '_snippet-story-link.html' %}</div>
+  <div><p>{{ story.synopsis }}</p></div>
+</div>
+{% endfor %}
+</section>
+{% endblock %}

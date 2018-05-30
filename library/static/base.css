@@ -115,6 +115,21 @@ em em em  { font-style: italic }
 
 pre, kbd, .typewriter { font-family: courier new, courier, monospace }
 
+section.saga {
+  font-style: italic;
+}
+
+section.saga nav {
+  font-size: 100%;
+  float: right;
+  margin: 0;
+}
+
+section.saga nav a {
+  display: inline-block;
+  text-align: center;
+  width: 1.5rem;
+}
 
 aside.categorization {
   font-size: 1.375rem;
@@ -336,7 +351,11 @@ table.index {
   width: 120%;
   margin-left: -3em;
   margin-right: -3em;
+}
+
+.index {
   margin-top: 1.5em;
+  margin-bottom: 2em;
 }
 
 .index tr:nth-child(even) {
@@ -361,8 +380,11 @@ table.index {
 }
 
 
+section .index {
+  margin-top: 1em;
+}
 
-div.story {
+div.item {
   width: 120%;
   margin-left: -3em;
   margin-right: -3em;
@@ -370,12 +392,12 @@ div.story {
   padding-bottom: 1em;
 }
 
-div.story div {
+div.item div {
   padding-left: 3em;
   padding-right: 3em;
 }
 
-div.story:nth-child(even) {
+div.item:nth-child(even) {
   background: rgb(230, 230, 234);
 }
 
@@ -389,10 +411,12 @@ article a:link {
   background: rgba(128, 128, 133, 0.25);
 }
 
+.entries a:link,
 .index a:link {
   background: none;
 }
 
+.entries a:hover,
 .index a:hover {
   background: rgb(115, 115, 166);
   background: rgba(72, 61, 139, 0.75);
@@ -416,4 +440,15 @@ article a:hover {
   color: white;
   background: rgb(115, 115, 166);
   background: rgba(72, 61, 139, 0.75);
+}
+
+a.saga:link {
+  background: rgb(225, 204, 176);
+  background: rgba(209, 124, 0, 0.25);
+}
+
+a.saga:hover {
+  background: rgb(214, 151, 59);
+  background: rgba(209, 124, 0, 0.75);
+  color: white;
 }

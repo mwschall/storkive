@@ -1,0 +1,3 @@
+{% if saga %}
+<nav class="saga"><a href="{{ url('saga', args=[saga.slug]) }}">Saga: {{ saga.name }}</a></nav>
+{% endif %}

@@ -4,7 +4,7 @@
 <h3 class="title">{{ page_title }}</h3>
 <div id="stories">
 {% for story in stories %}
-<div id="{{ story.slug }}" class="story">
+<div id="{{ story.slug }}" class="story item">
   <div>{% include '_snippet-story-link.html' %}</div>
   <div>{{ ' '.join(story.code_abbrs) }}</div>
   <div>{% include '_snippet-story-by.html' %}</div>

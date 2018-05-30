@@ -7,6 +7,7 @@ def site_processor(request):
     site_links = [
         {'name': 'whats_new', 'href': reverse('whats_new'), 'label': "What's New"},
         {'name': 'titles', 'href': reverse('titles'), 'label': 'Titles'},
+        {'name': 'sagas', 'href': reverse('sagas'), 'label': 'Sagas'},
         {'name': 'authors', 'href': reverse('authors'), 'label': 'Authors'},
         {'name': 'codes', 'href': reverse('codes'), 'label': 'Codes'},
         {'name': 'lists', 'href': reverse('lists'), 'label': 'Lists'},

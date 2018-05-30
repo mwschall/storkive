@@ -1,8 +1,9 @@
+from adminsortable2.admin import SortableInlineAdminMixin
 from django import forms
 from django.contrib import admin
 
 from library.forms import TextField
-from library.models import Author, Installment, Story, Code, Source, List
+from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry
 
 
 @admin.register(Source)
@@ -104,3 +105,26 @@ class StoryAdmin(admin.ModelAdmin):
 @admin.register(List)
 class ListAdmin(admin.ModelAdmin):
     list_display = ('name', 'priority', 'entry_count')
+
+
+class SagaEntryInline(SortableInlineAdminMixin, admin.TabularInline):
+    model = SagaEntry
+    extra = 0
+
+    autocomplete_fields = ['story']
+
+
+@admin.register(Saga)
+class SagaAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug', 'entry_count')
+
+    exclude = ['sort_name']
+    fields = (
+        'slug',
+        'name',
+        'synopsis',
+    )
+    readonly_fields = ['slug']
+    inlines = [
+        SagaEntryInline,
+    ]

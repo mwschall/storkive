@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.db.models import F, Count, OuterRef, Min, Exists
+from django.db.models import F, Count, OuterRef, Min, Exists, Subquery
 from django.db.models.functions import Substr, Upper
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe, require_http_methods
 
 from library.expressions import SQCount
-from library.models import Author, Installment, List, Story, Code
+from library.models import Author, Installment, List, Story, Code, Saga, SagaEntry
 
 ONE_DAY = 24 * 60 * 60
 
@@ -95,14 +95,16 @@ def author_index(request):
 
 
 @require_safe
-def author_page(request, slug):
-    author = get_object_or_404(Author, slug=slug)
+def author_page(request, author):
+    author = get_object_or_404(Author, slug=author)
     stories = author.stories \
         .only('slug', 'title', 'slant', 'added_at', 'updated_at') \
         .annotate(code_abbrs=Story.codes_sq())
+    sagas = Saga.objects.filter(stories__authors__in=[author]).distinct()
     context = {
         'page_title': author.name,
         'author': author,
+        'sagas': sagas,
         'stories': stories,
         'has_updated': False,
     }
@@ -137,13 +139,49 @@ def code_page(request, abbr):
 
 
 @require_safe
-def story_page(request, slug):
+def saga_index(request):
+    # TODO: authors and codes
+    context = {
+        'page_title': 'Sagas',
+        'sagas': Saga.objects.all(),
+    }
+    return render(request, 'sagas.html', context)
+
+
+@require_safe
+def saga_page(request, saga):
+    saga = get_object_or_404(Saga, slug=saga)
+    stories = saga.stories_ordered.all()
+    authors = Author.objects.filter(stories__sagas=saga).distinct()
+    code_abbrs = Code.objects.filter(stories__sagas=saga).distinct()
+    context = {
+        'page_title': saga.name,
+        'saga': saga,
+        'authors': authors,
+        'code_abbrs': code_abbrs,
+        'stories': stories,
+    }
+    return render(request, 'saga.html', context)
+
+
+@require_safe
+def story_page(request, story, saga=None):
     qs = Story.objects.annotate(author_dicts=Story.authors_sq(),
                                 code_abbrs=Story.codes_sq())
-    story = get_object_or_404(qs, slug=slug)
+    story = get_object_or_404(qs, slug=story)
     installments = story.current_installments
+
+    if saga:
+        sq = SagaEntry.objects \
+            .values_list('order', flat=True) \
+            .filter(story=story, saga_id=OuterRef('pk'))
+        qs = Saga.objects \
+            .annotate(current_index=Subquery(sq))
+        saga = get_object_or_404(qs, slug=saga)
+
     context = {
         'page_title': story.title,
+        'saga': saga,
         'story': story,
         'ordinal': 0,
         'next': 1,
@@ -167,9 +205,9 @@ def story_page(request, slug):
 
 
 @require_safe
-def installment_page(request, slug, ordinal):
+def installment_page(request, story, ordinal, saga=None):
     qs = Story.objects.only('slug', 'title')
-    story = get_object_or_404(qs, slug=slug)
+    story = get_object_or_404(qs, slug=story)
     inst = story.current_installments \
         .filter(ordinal=ordinal) \
         .annotate(story_title=F('story__title')) \
@@ -180,8 +218,17 @@ def installment_page(request, slug, ordinal):
     if installment_count > 1:
         title = title + ' ({:d} of {:d})'.format(ordinal, installment_count)
 
+    if saga:
+        sq = SagaEntry.objects \
+            .values_list('order', flat=True) \
+            .filter(story=story, saga_id=OuterRef('pk'))
+        qs = Saga.objects \
+            .annotate(current_index=Subquery(sq))
+        saga = get_object_or_404(qs, slug=saga)
+
     context = {
         'page_title': title,
+        'saga': saga,
         'story': story,
         'inst': inst,
         'authors': inst.authors.all(),
@@ -219,10 +266,10 @@ def list_page(request, pk):
 
 
 @require_http_methods(['PUT', 'DELETE'])
-def list_toggle(request, pk, slug):
+def list_toggle(request, pk, story):
     try:
         user_list = List.objects.get(pk=pk)
-        story = Story.objects.filter(slug=slug).only('pk').get()
+        story = Story.objects.filter(slug=story).only('pk').get()
         if request.method == 'PUT':
             story.list_entries.create(list=user_list)
         else:
