@@ -65,14 +65,38 @@ def get_author_slug(name):
 
 def get_sort_name(name):
     name = name.strip().lstrip('.').lower()
+
+    # normalize whitespace
     name = re.sub(r'\s+', ' ', name)
-    name = re.sub(r'[\'‘’"“”(){}[\]]', '', name)
+
+    # sort apostrophes within words last, because reasons... or don't
+    # name = re.sub(r'(?<=\w)[\'’](?=\w)', '~', name)
+
+    # drop apostrophes and quotes
+    name = re.sub(r'[\'‘’"“”]', '', name)
+
+    # get rid of 'cheeky parens'
+    # aka when strings of contiguous, non-space characters are partially wrapped
+    name = re.sub(r'(?:(?<=^)|(?<=\s))'         # the beginning or a space
+                  r'(?P<pre>[^(\s]+)?'          # some non-wrapped characters?
+                  r'\((\S+)\)'                  # the wrapped characters
+                  r'((?(pre)[^\s)]*|[^\s)]+))'  # require something if no pre-chars
+                  r'(?=\s|$)',                  # a space or the end
+                  r'\1\2\3', name)
+
+    # drop articles from the beginning
     name = re.sub(r'^(?:the |a |an )', '', name)
+
+    # transform numbers to words
     name = re.sub(r'^(\d+)(?:st|nd|rd|th)\b',
                   lambda m: num2words(int(m.group(1)), to='ordinal'),
                   name)
     name = re.sub(r'^\d{4}', lambda m: num2words(int(m.group()), to='year'), name)
     name = re.sub(r'^\d+', lambda m: num2words(int(m.group())), name)
+
+    # kill off any remaining non-letters at the beginning
+    name = re.sub(r'^[^a-z]+', '', name)
+
     return name
 
 
