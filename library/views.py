@@ -34,12 +34,10 @@ def whats_new(request):
             .annotate(ord_min=Min('added_at')) \
             .filter(ord_min=date)
 
-        return Story.objects \
+        return Story.display_objects \
             .annotate(inst_on_date=Exists(new_insts_exist)) \
             .filter(inst_on_date=True) \
             .annotate(up_cnt=SQCount(new_insts)) \
-            .annotate(author_dicts=Story.authors_sq(),
-                      code_abbrs=Story.codes_sq()) \
             .iterator()
 
     days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]
@@ -69,10 +67,8 @@ def letter_index(request):
 @require_safe
 @cache_page(ONE_DAY, key_prefix='letter')
 def letter_page(request, letter):
-    stories = Story.objects \
+    stories = Story.display_objects \
         .filter(sort_title__istartswith=letter) \
-        .annotate(author_dicts=Story.authors_sq(),
-                  code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
         'page_title': 'Stories: ' + letter,
@@ -99,7 +95,8 @@ def author_page(request, author):
     author = get_object_or_404(Author, slug=author)
     stories = author.stories \
         .only('slug', 'title', 'slant', 'added_at', 'updated_at') \
-        .annotate(code_abbrs=Story.codes_sq())
+        .annotate(code_abbrs=Story.codes_sq(),
+                  missing=Story.missing_sq())
     sagas = Saga.objects.filter(stories__authors__in=[author]).distinct()
     context = {
         'page_title': author.name,
@@ -126,9 +123,9 @@ def code_index(request):
 @cache_page(ONE_DAY, key_prefix='code')
 def code_page(request, abbr):
     code = get_object_or_404(Code, abbr=abbr)
-    stories = Story.objects.filter(codes__abbr=abbr) \
+    stories = Story.display_objects \
+        .filter(codes__abbr=abbr) \
         .only('slug', 'title', 'slant') \
-        .annotate(code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
         'page_title': 'Codes; '+abbr,
@@ -166,8 +163,7 @@ def saga_page(request, saga):
 
 @require_safe
 def story_page(request, story, saga=None):
-    qs = Story.objects.annotate(author_dicts=Story.authors_sq(),
-                                code_abbrs=Story.codes_sq())
+    qs = Story.display_objects
     story = get_object_or_404(qs, slug=story)
     installments = story.current_installments
 
@@ -183,8 +179,7 @@ def story_page(request, story, saga=None):
         'page_title': story.title,
         'saga': saga,
         'story': story,
-        'ordinal': 0,
-        'next': 1,
+        'next': story.first_ordinal,
         'installment_count': story.installment_count,
         'lists': List.objects.all(),
         'story_lists': [l.pk for l in story.lists],
@@ -210,7 +205,9 @@ def installment_page(request, story, ordinal, saga=None):
     story = get_object_or_404(qs, slug=story)
     inst = story.current_installments \
         .filter(ordinal=ordinal) \
-        .annotate(story_title=F('story__title')) \
+        .annotate(story_title=F('story__title'),
+                  prev=Installment.prev_sq(),
+                  next=Installment.next_sq()) \
         .prefetch_related('authors') \
         .get()
     installment_count = story.installment_count
@@ -233,8 +230,8 @@ def installment_page(request, story, ordinal, saga=None):
         'inst': inst,
         'authors': inst.authors.all(),
         'ordinal': ordinal,
-        'prev': ordinal-1,
-        'next': ordinal+1 if ordinal < installment_count else 0,
+        'prev': inst.prev,
+        'next': inst.next,
         'installment_count': installment_count,
     }
     return render(request, 'installment.html', context)
@@ -253,9 +250,9 @@ def list_index(request):
 def list_page(request, pk):
     user_list = get_object_or_404(List, pk=pk)
     # TODO: put this Story link + codes query somewhere central
-    stories = Story.objects.filter(list_entries__list=user_list) \
+    stories = Story.display_objects \
+        .filter(list_entries__list=user_list) \
         .only('slug', 'title', 'slant') \
-        .annotate(code_abbrs=Story.codes_sq()) \
         .iterator()
     context = {
         'page_title': 'Lists',

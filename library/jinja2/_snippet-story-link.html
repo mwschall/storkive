@@ -2,6 +2,6 @@
   url('saga_story', args=[saga.slug, story.slug])
   if saga else
   url('story', args=[story.slug])
-}}"><cite>{{
-  story.title
-}}</cite></a>{% if up_date %} {{ story|up_count(up_date.date) }}{% endif %}
+}}"><cite>{{ story.title }}</cite></a>
+{%- if story.missing %}<abbr title="Missing Installments"> *</abbr>{% endif %}
+{%- if up_date %} {{ story|up_count(up_date.date) }}{% endif %}

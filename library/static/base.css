@@ -13,6 +13,16 @@ body {
   font-family: 'PT Serif', Georgia, serif;
 }
 
+abbr[title] {
+  border-bottom: none !important;
+  cursor: default !important;
+  text-decoration: none !important;
+}
+
+a abbr[title] {
+  cursor: inherit !important;
+}
+
 article {
   color: black;
   background: rgb(244, 244, 248);

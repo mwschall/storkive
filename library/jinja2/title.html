@@ -4,6 +4,10 @@
 {% include '_snippet-list-script.html' %}
 {% endblock %}
 
+{% block prenav %}
+{% include '_nav-arrows.html' %}
+{% endblock %}
+
 {% block content %}
 {% include '_snippet-saga-header.html' %}
 <section class="info">
@@ -19,13 +23,9 @@
 <section class="synopsis">{{ story.synopsis }}</section>
 {% if chapter %}
 <div class="chapter">
-  <a href="{{
-    url('saga_installment', args=[saga.slug, story.slug, 1])
-    if saga else
-    url('installment', args=[story.slug, 1])
-  }}">{{ chapter.title }}</a>
+  {%- with inst=chapter %}{% include '_snippet-inst-link.html' %}{% endwith %}
   {%- if chapter.length %} ({{ chapter.length }} words)
-  {% endif %}
+  {%- endif %}
 </div>
 {% else %}
 <table id="index" class="index">
@@ -40,13 +40,7 @@
 <tbody>
 {% for inst in installments %}
 <tr>
-  <td><a href="{{
-    url('saga_installment', args=[saga.slug, story.slug, inst.ordinal])
-    if saga else
-    url('installment', args=[story.slug, inst.ordinal])
-  }}">{{
-    inst.title
-  }}</a></td>
+  <td>{% include '_snippet-inst-link.html' %}</td>
   {% for h in headers %}
   <td>{{ inst|index_cell(h.cls) }}</td>
   {% endfor %}
@@ -55,4 +49,8 @@
 </tbody>
 </table>
 {% endif %}
+{% endblock %}
+
+{% block postnav %}
+{% include '_nav-arrows.html' %}
 {% endblock %}

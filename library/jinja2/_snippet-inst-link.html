@@ -1,0 +1,11 @@
+{% if inst.exists %}
+<a href="{{
+  url('saga_installment', args=[saga.slug, story.slug, inst.ordinal])
+  if saga else
+  url('installment', args=[story.slug, inst.ordinal])
+  }}">{{
+    inst.title
+  }}</a>
+{%- else %}
+<s>{{ inst.title }}</s>
+{%- endif %}

@@ -9,7 +9,7 @@ from django.db.models import Min, Max, OuterRef, Subquery
 from django.urls import reverse
 from django.utils.functional import cached_property
 
-from library.expressions import Concat
+from library.expressions import Concat, SQCount
 from library.managers import OrderedLowerManager
 from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color, s_uuid
 
@@ -153,6 +153,14 @@ class Code(models.Model):
         ordering = ['abbr']
 
 
+class StoryDisplayManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset() \
+            .annotate(author_dicts=Story.authors_sq(),
+                      code_abbrs=Story.codes_sq(),
+                      missing=Story.missing_sq())
+
+
 class Story(models.Model):
     TITLE_LEN = 150
     SLUG_LEN = 70
@@ -251,9 +259,13 @@ class Story(models.Model):
         else:
             self._code_abbrs = []
 
-    @property
+    @cached_property
     def installment_count(self):
         return self.current_installments.count()
+
+    @cached_property
+    def valid_installment_count(self):
+        return self.current_installments.exclude(file='').count()
 
     @cached_property
     def current_installments(self):
@@ -281,11 +293,34 @@ class Story(models.Model):
             )
         }
 
+    @cached_property
+    def first_ordinal(self):
+        try:
+            return self.current_installments \
+                .exclude(file='') \
+                .order_by('ordinal') \
+                .values_list('ordinal', flat=True)[0]
+        except IndexError:
+            return None
+
+    @cached_property
+    def last_ordinal(self):
+        try:
+            return self.current_installments \
+                .exclude(file='') \
+                .order_by('-ordinal') \
+                .values_list('ordinal', flat=True)[0]
+        except IndexError:
+            return None
+
+    objects = models.Manager()
+    display_objects = StoryDisplayManager()
+
     def __str__(self):
         return self.title
 
     class Meta:
-        ordering = ['sort_title']
+        ordering = ['sort_title', 'added_at']
         verbose_name_plural = "stories"
 
     @staticmethod
@@ -305,6 +340,14 @@ class Story(models.Model):
                         .annotate(abbrs=Concat('abbr', separator=separator))
                         .values_list('abbrs', flat=True)
                         )
+
+    @staticmethod
+    def missing_sq():
+        return SQCount(Installment.objects
+                       .filter(story__pk=OuterRef('pk'),
+                               is_current=True,
+                               file='')
+                       )
 
     def get_absolute_url(self):
         return reverse('story', args=[str(self.slug)])
@@ -407,6 +450,10 @@ class Installment(models.Model):
         # return self.story.installments.filter(ordinal=self.ordinal)
 
     @property
+    def exists(self):
+        return True if self.file else False
+
+    @property
     def date_added(self):
         dates = self.story.installment_dates[self.ordinal]
         return dates['date_added']
@@ -433,6 +480,26 @@ class Installment(models.Model):
 
     class Meta:
         unique_together = ('story', 'ordinal', 'added_at')
+
+    @staticmethod
+    def _ord_seeker(forward=True):
+        qs = Installment.objects \
+            .filter(story__pk=OuterRef('story__pk'), is_current=True) \
+            .exclude(file='') \
+            .values_list('ordinal', flat=True)
+
+        if forward:
+            return qs.filter(ordinal__gt=OuterRef('ordinal')).order_by('ordinal')
+        else:
+            return qs.filter(ordinal__lt=OuterRef('ordinal')).order_by('-ordinal')
+
+    @staticmethod
+    def prev_sq():
+        return Subquery(Installment._ord_seeker(False))
+
+    @staticmethod
+    def next_sq():
+        return Subquery(Installment._ord_seeker(True))
 
     def get_absolute_url(self):
         return reverse('installment', args=[str(self.story.slug), int(self.ordinal)])
