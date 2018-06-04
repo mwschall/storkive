@@ -56,10 +56,9 @@ def is_css_color(color):
 
 
 def get_author_slug(name):
-    name = re.sub(r'[,.?!&#‘"“”(){}[\]]', '', name)
-    name = re.sub(r'[\'’]', '-', name)
-    name = re.sub(r'\*', '_', name)
-    name = re.sub(r'[^A-Za-z0-9-_]', '-', name)
+    name = re.sub(r'[,.?!#$‘"“”(){}[\]]', '', name)
+    # name = re.sub(r'[*&\'’]', '-', name)
+    name = re.sub(r'[^-_A-Za-z0-9]', '-', name)
     return name
 
 
