@@ -1,42 +1,40 @@
 {% if saga or next or (installment_count > 1 and
                        story.valid_installment_count > 0) %}
 <nav class="arrows">
-{% if ordinal %}
-{% if prev %}
+{%- if ordinal %}
+{%- if prev -%}
   <a href="{{
     url('saga_installment', args=[saga.slug, story.slug, prev])
     if saga else
-    url('installment', args=[story.slug ,prev])
+    url('installment', args=[story.slug, prev])
   }}">← </a>
-{% elif saga and saga.prev_entry %}
+{%- elif saga and saga.prev_entry -%}
   <a href="{{
     url('saga_installment', args=[saga.slug,
                                   saga.prev_entry.slug,
                                   saga.prev_entry.last_ordinal])
   }}">« </a>
-{% endif %}
-{% if installment_count > 1 %}
+{%- endif %}
+{%- if installment_count > 1 -%}
   {{ ordinal }} of {{ installment_count }}
-{% endif %}
-{% if saga and saga.entry_count > 1 %}
-  {% if installment_count > 1 %}
-  in
-  {% endif %}
-  ( {{ saga.current_index }} of {{ saga.entry_count }} )
-{% endif %}
-{% endif %}
-{% if next %}
+{%- endif %}
+{%- if saga and saga.entry_count > 1 %}
+  {%- if installment_count > 1 %} in {% endif -%}
+  [{{ saga.current_index }} of {{ saga.entry_count }}]
+{%- endif %}
+{%- endif %}
+{%- if next -%}
   <a href="{{
     url('saga_installment', args=[saga.slug, story.slug, next])
     if saga else
     url('installment', args=[story.slug, next])
   }}"> →</a>
-{% elif saga and saga.next_entry %}
+{%- elif saga and saga.next_entry -%}
   <a href="{{
     url('saga_installment', args=[saga.slug,
                                   saga.next_entry.slug,
                                   saga.next_entry.first_ordinal])
   }}"> »</a>
-{% endif %}
+{%- endif %}
 </nav>
 {% endif %}

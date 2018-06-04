@@ -1,14 +1,14 @@
 {% if saga %}
 <section class="saga">
 <nav class="entries">
-{% if saga.prev_entry %}
+{%- if saga.prev_entry -%}
   <a class="prev entry" href="{{ url('saga_story', args=[saga.slug, saga.prev_entry.slug]) }}">« </a>
-{% endif %}
-  {{ saga.current_index }} of {{ saga.entry_count }}
-{% if saga.next_entry %}
+{%- endif %}
+  {{- saga.current_index }} of {{ saga.entry_count -}}
+{% if saga.next_entry -%}
   <a class="next entry" href="{{ url('saga_story', args=[saga.slug, saga.next_entry.slug]) }}"> »</a>
-{% endif %}
+{%- endif %}
 </nav>
-<h3 class="name">Saga: <a href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a></h3>
+<h3 class="name">Saga: <a class="saga" href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a></h3>
 </section>
 {% endif %}
