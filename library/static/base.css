@@ -422,12 +422,14 @@ article a:link {
 }
 
 .entries a:link,
-.index a:link {
+.index a:link,
+.item a:link {
   background: none;
 }
 
 .entries a:hover,
-.index a:hover {
+.index a:hover,
+.item a:hover {
   background: rgb(115, 115, 166);
   background: rgba(72, 61, 139, 0.75);
 }

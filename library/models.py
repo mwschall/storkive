@@ -259,9 +259,15 @@ class Story(models.Model):
         else:
             self._code_abbrs = []
 
-    @cached_property
+    @property
     def installment_count(self):
-        return self.current_installments.count()
+        if not hasattr(self, '_ic'):
+            self._ic = self.current_installments.count()
+        return self._ic
+
+    @installment_count.setter
+    def installment_count(self, value):
+        self._ic = value
 
     @cached_property
     def valid_installment_count(self):
