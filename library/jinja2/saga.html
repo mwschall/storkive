@@ -3,7 +3,10 @@
 {% block content %}
 <section class="info">
 <h3 class="title">Saga: {{ page_title }}</h3>
-<h3 class="byline">{% include '_snippet-story-by.html' %}</h3>
+<h3 class="byline">{% include '_snippet-by.html' %}</h3>
+{% if saga.updated_at %}
+<h3 class="dateline">Updated {{ saga.updated_at|long_fmt }}</h3>
+{% endif %}
 {% include '_snippet-code-links.html' %}
 </section>
 {% if saga.synopsis %}

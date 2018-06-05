@@ -1,4 +1,3 @@
-from collections import Iterable
 from io import BytesIO
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -11,11 +10,10 @@ from django.utils.functional import cached_property
 
 from library.expressions import Concat, SQCount
 from library.managers import OrderedLowerManager
+from library.mixins import AuthorsMixin, CodesMixin, DEFAULT_AUTHOR_SEP
 from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color, s_uuid
 
 DEFAULT_SLUG_LEN = 8
-DEFAULT_AUTHOR_SEP = '|'
-DEFAULT_CODE_SEP = ' '
 
 
 def _slug_gen():
@@ -162,7 +160,7 @@ class StoryDisplayManager(models.Manager):
                       missing=Story.missing_sq())
 
 
-class Story(models.Model):
+class Story(models.Model, AuthorsMixin, CodesMixin):
     TITLE_LEN = 150
     SLUG_LEN = 70
 
@@ -234,31 +232,6 @@ class Story(models.Model):
     @property
     def code_list(self):
         return self.codes.all()
-
-    @property
-    def author_dicts(self):
-        dicts = self._author_dicts
-        return dicts
-
-    @author_dicts.setter
-    def author_dicts(self, value):
-        self._author_dicts = [
-            {'name': name, 'slug': get_author_slug(name)}
-            for name in value.split(DEFAULT_AUTHOR_SEP)
-        ]
-
-    @property
-    def code_abbrs(self):
-        return self._code_abbrs
-
-    @code_abbrs.setter
-    def code_abbrs(self, value):
-        if isinstance(value, str):
-            self._code_abbrs = value.split(DEFAULT_CODE_SEP)
-        elif isinstance(value, Iterable):
-            self._code_abbrs = value
-        else:
-            self._code_abbrs = []
 
     @property
     def installment_count(self):
@@ -337,16 +310,16 @@ class Story(models.Model):
                         .order_by()
                         .filter(stories__pk=OuterRef('pk'))
                         .annotate(names=Concat('name', separator=separator))
-                        .values_list('names', flat=True)
+                        .values('names')
                         )
 
     @staticmethod
-    def codes_sq(separator=DEFAULT_CODE_SEP):
+    def codes_sq():
         return Subquery(Code.objects
                         .order_by()
                         .filter(stories__pk=OuterRef('pk'))
-                        .annotate(abbrs=Concat('abbr', separator=separator))
-                        .values_list('abbrs', flat=True)
+                        .annotate(abbrs=Concat('abbr'))
+                        .values('abbrs')
                         )
 
     @staticmethod
@@ -525,7 +498,16 @@ class Installment(models.Model):
         super(Installment, self).save(*args, **kwargs)
 
 
-class Saga(models.Model):
+class SagaDisplayManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset() \
+            .annotate(author_dicts=Saga.authors_sq(),
+                      code_abbrs=Saga.codes_sq(),
+                      updated_at=Saga.updated_at_sq(),
+                      entry_count=Saga.entry_count_sq())
+
+
+class Saga(models.Model, AuthorsMixin, CodesMixin):
     slug = models.CharField(
         primary_key=True,
         max_length=DEFAULT_SLUG_LEN,
@@ -580,6 +562,9 @@ class Saga(models.Model):
             return self.stories_ordered.all()[self.current_index]
         return None
 
+    objects = models.Manager()
+    display_objects = SagaDisplayManager()
+
     def __str__(self):
         return '{} [{}]'.format(self.name, self.slug)
 
@@ -600,6 +585,47 @@ class Saga(models.Model):
                 break
             except IntegrityError:
                 self.slug = _slug_gen()
+
+    @staticmethod
+    def authors_sq(separator=DEFAULT_AUTHOR_SEP):
+        return Subquery(Author.objects
+                        .order_by()
+                        .filter(stories__sagas__pk=OuterRef('pk'))
+                        .annotate(names=Concat('name', separator=separator))
+                        .values('names')
+                        )
+
+    @staticmethod
+    def codes_sq():
+        return Subquery(Code.objects
+                        .order_by()
+                        .filter(stories__sagas__pk=OuterRef('pk'))
+                        .annotate(abbrs=Concat('abbr', distinct=True))
+                        .values('abbrs')
+                        )
+
+    @staticmethod
+    def updated_at_sq():
+        return Subquery(Installment.objects
+                        .order_by('-added_at')
+                        .filter(story__sagas__pk=OuterRef('pk'),
+                                is_current=True)
+                        .values('added_at')[:1]
+                        )
+
+    @staticmethod
+    def entry_count_sq():
+        return SQCount(Story.objects
+                       .order_by()
+                       .filter(sagas__pk=OuterRef('pk'))
+                       )
+
+    @staticmethod
+    def current_index_sq(story):
+        return Subquery(SagaEntry.objects
+                        .values_list('order', flat=True)
+                        .filter(story=story, saga_id=OuterRef('pk'))
+                        )
 
 
 class SagaEntry(models.Model):

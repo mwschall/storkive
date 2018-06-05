@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.db.models import F, Count, OuterRef, Min, Exists, Subquery
+from django.db.models import F, Count, OuterRef, Min, Exists
 from django.db.models.functions import Substr, Upper
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -7,7 +7,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe, require_http_methods
 
 from library.expressions import SQCount, ChillSubquery
-from library.models import Author, Installment, List, Story, Code, Saga, SagaEntry
+from library.models import Author, Installment, List, Story, Code, Saga
 
 ONE_DAY = 24 * 60 * 60
 
@@ -146,25 +146,20 @@ def code_page(request, abbr):
 
 @require_safe
 def saga_index(request):
-    # TODO: authors and codes
     context = {
         'page_title': 'Sagas',
-        'sagas': Saga.objects.all(),
+        'sagas': Saga.display_objects.all(),
     }
     return render(request, 'sagas.html', context)
 
 
 @require_safe
 def saga_page(request, saga):
-    saga = get_object_or_404(Saga, slug=saga)
+    saga = get_object_or_404(Saga.display_objects, slug=saga)
     stories = saga.stories_ordered.all()
-    authors = Author.objects.filter(stories__sagas=saga).distinct()
-    code_abbrs = Code.objects.filter(stories__sagas=saga).distinct()
     context = {
         'page_title': saga.name,
         'saga': saga,
-        'authors': authors,
-        'code_abbrs': code_abbrs,
         'stories': stories,
     }
     return render(request, 'saga.html', context)
@@ -172,17 +167,13 @@ def saga_page(request, saga):
 
 @require_safe
 def story_page(request, story, saga=None):
-    qs = Story.display_objects
-    story = get_object_or_404(qs, slug=story)
+    story = get_object_or_404(Story.display_objects, slug=story)
     installments = story.current_installments
     sagas = None
 
     if saga:
-        sq = SagaEntry.objects \
-            .values_list('order', flat=True) \
-            .filter(story=story, saga_id=OuterRef('pk'))
-        qs = Saga.objects \
-            .annotate(current_index=Subquery(sq))
+        qs = Saga.display_objects \
+            .annotate(current_index=Saga.current_index_sq(story))
         saga = get_object_or_404(qs, slug=saga)
     else:
         sagas = story.sagas.only('slug', 'name').all()
@@ -197,7 +188,7 @@ def story_page(request, story, saga=None):
         'lists': List.objects.all(),
         'story_lists': [l.pk for l in story.lists],
     }
-    if len(installments) == 1:
+    if story.installment_count == 1:
         context['chapter'] = installments[0]
     else:
         context['headers'] = [
@@ -229,11 +220,8 @@ def installment_page(request, story, ordinal, saga=None):
         title = title + ' ({:d} of {:d})'.format(ordinal, installment_count)
 
     if saga:
-        sq = SagaEntry.objects \
-            .values_list('order', flat=True) \
-            .filter(story=story, saga_id=OuterRef('pk'))
-        qs = Saga.objects \
-            .annotate(current_index=Subquery(sq))
+        qs = Saga.display_objects \
+            .annotate(current_index=Saga.current_index_sq(story))
         saga = get_object_or_404(qs, slug=saga)
 
     context = {

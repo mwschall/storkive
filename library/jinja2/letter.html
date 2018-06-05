@@ -7,7 +7,7 @@
 <div id="{{ story.slug }}" class="story item">
   <div>{% include '_snippet-story-link.html' %}</div>
   <div>{{ ' '.join(story.code_abbrs) }}</div>
-  <div>{% include '_snippet-story-by.html' %}</div>
+  <div>{% include '_snippet-by.html' %}</div>
   {% if story.added_at %}
   <div class="ctime">Added {{ story.added_at|long_fmt }}</div>
   {% endif %}

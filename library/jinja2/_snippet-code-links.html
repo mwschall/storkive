@@ -1,5 +1,5 @@
 <div class="storyCodes">
-{% for abbr in code_abbrs or story.code_abbrs %}
+{% for abbr in code_abbrs or (story or saga).code_abbrs %}
   <a class="code" href="{{ url('code', args=[abbr]) }}">{{ abbr }}</a>
 {% endfor %}
 </div>

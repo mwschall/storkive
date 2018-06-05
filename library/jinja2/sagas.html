@@ -2,10 +2,15 @@
 
 {% block content %}
 <h3 class="title">{{ page_title }}</h3>
-<div id="index" class="index">
+<div id="sagas">
 {% for saga in sagas %}
 <div class="saga item">
   <div class="name">{% include '_snippet-saga-link.html' %}</div>
+  <div>{{ ' '.join(saga.code_abbrs) }}</div>
+  <div>{% include '_snippet-by.html' %}</div>
+  {% if saga.updated_at %}
+  <div class="mtime">Updated {{ saga.updated_at|long_fmt }}</div>
+  {% endif %}
   {% if saga.synopsis %}
   <div><p>{{ saga.synopsis }}</p></div>
   {% endif %}

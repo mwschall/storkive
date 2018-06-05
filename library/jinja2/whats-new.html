@@ -11,7 +11,7 @@
     <a class="next arrow" href="{{
       url('installment', args=[story.slug, story.next_inst])
       }}"> →</a></div>
-  <div>{%- include '_snippet-story-by.html' %} ({{ ' '.join(story.code_abbrs) }})</div>
+  <div>{%- include '_snippet-by.html' %} ({{ ' '.join(story.code_abbrs) }})</div>
   <div><p>{{ story.synopsis }}</p></div>
 </div>
 {% endfor %}

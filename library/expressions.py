@@ -9,12 +9,15 @@ from django.db.models import Subquery, CharField, Func
 # noinspection PyAbstractClass
 class Concat(Func):
     function = 'GROUP_CONCAT'
-    template = "%(function)s(%(distinct)s%(expressions)s, '%(separator)s')"
+    template = "%(function)s(%(distinct)s%(expressions)s%(separator)s)"
+    sep_template = ", '%s'"
 
     def __init__(self, expression, separator=',', distinct=False, **extra):
+        assert separator == ',' or not distinct, \
+            'Cannot specify custom separator with distinct clause.'
         super(Concat, self).__init__(
             expression,
-            separator=separator,
+            separator=self.sep_template % separator if not distinct else '',
             distinct='DISTINCT ' if distinct else '',
             output_field=CharField(),
             **extra)
