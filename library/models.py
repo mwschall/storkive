@@ -288,16 +288,17 @@ class Story(models.Model):
 
     @cached_property
     def installment_dates(self):
+        qs = self.installments \
+            .values('ordinal') \
+            .order_by('ordinal') \
+            .annotate(date_added=Min('added_at'),
+                      date_updated=Max('added_at'))
         return {
             d['ordinal']: {
                 'date_added': d['date_added'],
                 'date_updated': d['date_updated'],
             }
-            for d in
-            self.installments.values('ordinal').order_by('ordinal').annotate(
-                date_added=Min('added_at'),
-                date_updated=Max('added_at'),
-            )
+            for d in qs
         }
 
     @cached_property
@@ -471,7 +472,7 @@ class Installment(models.Model):
     @property
     def date_added(self):
         dates = self.story.installment_dates[self.ordinal]
-        return dates['date_added']
+        return dates['date_added'] if dates['date_added'].year > 1 else None
 
         # return self.versions[0].added_at
 

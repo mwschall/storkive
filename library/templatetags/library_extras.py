@@ -23,13 +23,11 @@ def index_cell(inst, col):
     if col == 'wc':
         return '%d words' % inst.length if inst.length else '(unknown)'
     elif col == 'cdate':
-        return inst.date_added.strftime('%d %b %Y')
+        return inst.date_added.strftime('%d %b %Y') if inst.date_added else ''
     elif col == 'mdate':
         return inst.date_updated.strftime('%d %b %Y') if inst.date_updated else ''
     else:
-        result = '—'
-
-    return result
+        return '—'
 
 
 @register.filter

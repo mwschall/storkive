@@ -14,9 +14,11 @@
 {% include '_snippet-list-picker.html' %}
 <h3 class="title">{{ story.title }}</h3>
 <h3 class="byline">{% include '_snippet-story-by.html' %}</h3>
+{% if story.added_at %}
 <h3 class="dateline">Added {{ story.added_at|long_fmt }}</h3>
 {% if story.updated_at != story.added_at %}
 <h3 class="dateline">Updated {{ story.updated_at|long_fmt }}</h3>
+{% endif %}
 {% endif %}
 {% include '_snippet-code-links.html' %}
 </section>
