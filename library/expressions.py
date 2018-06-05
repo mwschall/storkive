@@ -30,3 +30,10 @@ class SQCount(Subquery):
 
     def get_source_expressions(self):
         return []
+
+
+# noinspection PyAbstractClass
+class ChillSubquery(Subquery):
+    # chill the F out and don't explode the GROUP BY clause
+    def get_source_expressions(self):
+        return []

@@ -6,7 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_safe, require_http_methods
 
-from library.expressions import SQCount
+from library.expressions import SQCount, ChillSubquery
 from library.models import Author, Installment, List, Story, Code, Saga, SagaEntry
 
 ONE_DAY = 24 * 60 * 60
@@ -23,10 +23,6 @@ def whats_new(request):
     last_two = Story.objects.values_list('updated_at', flat=True).order_by('-updated_at').distinct()[:2]
 
     def fetch_updates(date):
-        inst_count = Installment.objects \
-            .order_by() \
-            .filter(story=OuterRef('pk'), is_current=True)
-
         new_insts_exist = Installment.objects \
             .order_by() \
             .filter(story=OuterRef('pk'), added_at=date)
@@ -38,11 +34,19 @@ def whats_new(request):
             .annotate(ord_min=Min('added_at')) \
             .filter(ord_min=date)
 
+        next_inst = Installment.objects \
+            .order_by('ordinal') \
+            .filter(story_id=OuterRef('pk')) \
+            .values('ordinal') \
+            .annotate(ord_min=Min('added_at')) \
+            .filter(ord_min=date) \
+            .values('ordinal')
+
         return Story.display_objects \
             .annotate(inst_on_date=Exists(new_insts_exist)) \
             .filter(inst_on_date=True) \
-            .annotate(installment_count=SQCount(inst_count),
-                      up_cnt=SQCount(new_insts)) \
+            .annotate(up_cnt=SQCount(new_insts),
+                      next_inst=ChillSubquery(next_inst[:1])) \
             .iterator()
 
     days = [{'date': date, 'updates': fetch_updates(date)} for date in last_two]

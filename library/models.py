@@ -158,6 +158,7 @@ class StoryDisplayManager(models.Manager):
         return super().get_queryset() \
             .annotate(author_dicts=Story.authors_sq(),
                       code_abbrs=Story.codes_sq(),
+                      installment_count=Story.installment_count_sq(),
                       missing=Story.missing_sq())
 
 
@@ -346,6 +347,14 @@ class Story(models.Model):
                         .annotate(abbrs=Concat('abbr', separator=separator))
                         .values_list('abbrs', flat=True)
                         )
+
+    @staticmethod
+    def installment_count_sq():
+        return SQCount(Installment.objects
+                       .order_by()
+                       .filter(story=OuterRef('pk'),
+                               is_current=True)
+                       )
 
     @staticmethod
     def missing_sq():
