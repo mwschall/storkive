@@ -175,6 +175,7 @@ def story_page(request, story, saga=None):
     qs = Story.display_objects
     story = get_object_or_404(qs, slug=story)
     installments = story.current_installments
+    sagas = None
 
     if saga:
         sq = SagaEntry.objects \
@@ -183,10 +184,13 @@ def story_page(request, story, saga=None):
         qs = Saga.objects \
             .annotate(current_index=Subquery(sq))
         saga = get_object_or_404(qs, slug=saga)
+    else:
+        sagas = story.sagas.only('slug', 'name').all()
 
     context = {
         'page_title': story.title,
         'saga': saga,
+        'sagas': sagas,
         'story': story,
         'next': story.first_ordinal,
         'installment_count': story.installment_count,

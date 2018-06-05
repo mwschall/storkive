@@ -1,0 +1,6 @@
+part of {% for saga in sagas -%}
+  {% include '_snippet-saga-link.html' %}
+  {%- if loop.index == loop.length - 1 %} and
+  {% elif loop.length > 1 and not loop.last %};
+  {% endif %}
+{% endfor %}
