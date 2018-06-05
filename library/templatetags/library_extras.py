@@ -6,6 +6,11 @@ from django.utils.safestring import mark_safe
 register = template.Library()
 
 
+@register.filter
+def classes(value):
+    return ' '.join(filter(None, value))
+
+
 # noinspection PyShadowingBuiltins
 @register.filter
 def long_fmt(value, format="d F Y"):

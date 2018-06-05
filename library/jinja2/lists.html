@@ -6,9 +6,7 @@
 <tbody>
 {% for list in lists %}
 <tr>
-  <td><a href="{{ url('list', args=[list.pk]) }}">
-    {%- include '_snippet-list-name.html' -%}
-  </a></td>
+  <td>{% include '_snippet-list-link.html' %}</td>
   <td>{{ list.entry_count|story_count }}</td>
 </tr>
 {% endfor %}

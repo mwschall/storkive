@@ -1,0 +1,3 @@
+{% if author %}
+<a class="author" href="{{ url('author', args=[author.slug]) }}">{{ author.name }}</a>
+{%- endif %}

@@ -1,0 +1,5 @@
+{% if list %}
+<a class="list" href="{{ url('list', args=[list.pk]) }}">
+  {%- include '_snippet-list-name.html' -%}
+</a>
+{%- endif %}

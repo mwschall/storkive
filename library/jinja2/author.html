@@ -17,7 +17,7 @@
 <div id="sagas">
 {% for saga in sagas %}
 <div class="saga item">
-  <div class="name"><a class="saga" href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a></div>
+  <div class="name">{% include '_snippet-saga-link.html' %}</div>
   {% if saga.synopsis %}
   <div><p>{{ saga.synopsis }}</p></div>
   {% endif %}

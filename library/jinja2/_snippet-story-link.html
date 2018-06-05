@@ -1,4 +1,4 @@
-<a class="{{ story.slant }}" href="{{
+<a class="{{ (story.slant, 'story')|classes }}" href="{{
   url('saga_story', args=[saga.slug, story.slug])
   if saga else
   url('story', args=[story.slug])

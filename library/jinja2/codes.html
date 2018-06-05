@@ -6,7 +6,9 @@
 <tbody>
 {% for code in codes %}
 <tr>
-  <td><a href="{{ url('code', args=[code.abbr]) }}">{{ code.abbr }}: {{ code.name }}</a></td>
+  <td><a class="code" href="{{ url('code', args=[code.abbr]) }}">
+    {{- code.abbr }}: {{ code.name -}}
+  </a></td>
   <td>{{ code.story_count|story_count }}</td>
 </tr>
 {% endfor %}

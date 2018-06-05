@@ -3,13 +3,13 @@
 <nav class="arrows">
 {%- if ordinal %}
 {%- if prev -%}
-  <a href="{{
+  <a class="prev arrow" href="{{
     url('saga_installment', args=[saga.slug, story.slug, prev])
     if saga else
     url('installment', args=[story.slug, prev])
   }}">← </a>
 {%- elif saga and saga.prev_entry -%}
-  <a href="{{
+  <a class="prev arrow" href="{{
     url('saga_installment', args=[saga.slug,
                                   saga.prev_entry.slug,
                                   saga.prev_entry.last_ordinal])
@@ -24,13 +24,13 @@
 {%- endif %}
 {%- endif %}
 {%- if next -%}
-  <a href="{{
+  <a class="next arrow" href="{{
     url('saga_installment', args=[saga.slug, story.slug, next])
     if saga else
     url('installment', args=[story.slug, next])
   }}"> →</a>
 {%- elif saga and saga.next_entry -%}
-  <a href="{{
+  <a class="next arrow" href="{{
     url('saga_installment', args=[saga.slug,
                                   saga.next_entry.slug,
                                   saga.next_entry.first_ordinal])

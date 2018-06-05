@@ -1,5 +1,5 @@
 by {% for author in authors or story.author_dicts -%}
-  <a href="{{ url('author', args=[author.slug]) }}">{{ author.name }}</a>
+  {% include '_snippet-author-link.html' %}
   {%- if loop.index == loop.length - 1 %} and
   {% elif loop.length > 1 and not loop.last %};
   {% endif %}

@@ -2,7 +2,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import reverse
 from jinja2 import Environment
 
-from library.templatetags.library_extras import story_count, long_fmt, up_count, short_fmt, index_cell
+from library.templatetags.library_extras import story_count, long_fmt, up_count, short_fmt, index_cell, classes
 
 
 def environment(**options):
@@ -12,6 +12,7 @@ def environment(**options):
         'url': reverse,
     })
     env.filters.update({
+        'classes': classes,
         'index_cell': index_cell,
         'long_fmt': long_fmt,
         'short_fmt': short_fmt,

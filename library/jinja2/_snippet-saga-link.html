@@ -1,0 +1,3 @@
+{% if saga %}
+<a class="saga" href="{{ url('saga', args=[saga.slug]) }}">{{ saga.name }}</a>
+{%- endif %}

@@ -5,11 +5,11 @@
 <table id="index" class="index">
 <tbody>
 {% for author in authors %}
-<tr><td><a href="{{ url('author', args=[author.slug]) }}">{{
-  author.name
-}}</a></td><td>{{
-  author.story_count|story_count
-}}</td></tr>
+<tr><td>{%
+    include '_snippet-author-link.html'
+  %}</td><td>{{
+    author.story_count|story_count
+  }}</td></tr>
 {% endfor %}
 </tbody>
 </table>
