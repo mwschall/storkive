@@ -105,7 +105,8 @@ def author_page(request, author):
     stories = author.stories \
         .only('slug', 'title', 'slant', 'added_at', 'updated_at') \
         .annotate(code_abbrs=Story.codes_sq(),
-                  missing=Story.missing_sq())
+                  installment_count=Story.installment_count_sq(),
+                  missing_count=Story.missing_count_sq())
     sagas = Saga.objects.filter(stories__authors__in=[author]).distinct()
     context = {
         'page_title': author.name,
@@ -190,6 +191,8 @@ def story_page(request, story, saga=None):
     }
     if story.installment_count == 1:
         context['chapter'] = installments[0]
+    elif not story.installment_count:
+        context['chapter'] = {'title': story.title, 'exists': False}
     else:
         context['headers'] = [
             {'cls': 'wc', 'name': 'Length'},

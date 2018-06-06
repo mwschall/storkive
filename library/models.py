@@ -157,7 +157,7 @@ class StoryDisplayManager(models.Manager):
             .annotate(author_dicts=Story.authors_sq(),
                       code_abbrs=Story.codes_sq(),
                       installment_count=Story.installment_count_sq(),
-                      missing=Story.missing_sq())
+                      missing_count=Story.missing_count_sq())
 
 
 class Story(models.Model, AuthorsMixin, CodesMixin):
@@ -242,6 +242,14 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
     @installment_count.setter
     def installment_count(self, value):
         self._ic = value
+
+    @property
+    def missing_count(self):
+        return 1 if not self.installment_count else self._mc
+
+    @missing_count.setter
+    def missing_count(self, value):
+        self._mc = value
 
     @cached_property
     def valid_installment_count(self):
@@ -331,7 +339,7 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
                        )
 
     @staticmethod
-    def missing_sq():
+    def missing_count_sq():
         return SQCount(Installment.objects
                        .filter(story__pk=OuterRef('pk'),
                                is_current=True,
