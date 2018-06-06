@@ -9,7 +9,7 @@
 <div class="story item">
   <div>{% include '_snippet-story-link.html' -%}
     <a class="next arrow" href="{{
-      url('installment', args=[story.slug, story.next_inst])
+      url('installment', args=[story.slug, story.next_inst or 1])
       }}"> →</a></div>
   <div>{%- include '_snippet-by.html' %} ({{ ' '.join(story.code_abbrs) }})</div>
   <div><p>{{ story.synopsis }}</p></div>
