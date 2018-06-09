@@ -1,9 +1,9 @@
-from adminsortable2.admin import SortableInlineAdminMixin
+from adminsortable2.admin import SortableInlineAdminMixin, SortableAdminMixin
 from django import forms
 from django.contrib import admin
 
 from library.forms import TextField
-from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry
+from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry, Slant
 
 
 @admin.register(Source)
@@ -21,6 +21,25 @@ class AuthorAdmin(admin.ModelAdmin):
 class CodeAdmin(admin.ModelAdmin):
     list_display = ('abbr', 'name')
     search_fields = ['abbr']
+
+
+@admin.register(Slant)
+class SlantAdmin(SortableAdminMixin, admin.ModelAdmin):
+    list_display = ('abbr', 'description')
+    search_fields = ['abbr', 'description']
+
+    autocomplete_fields = ['affinity']
+    fields = (
+        'abbr',
+        'description',
+        'affinity',
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['abbr']
+        else:
+            return []
 
 
 class InstallmentAdminForm(forms.ModelForm):
@@ -95,7 +114,7 @@ class StoryAdmin(admin.ModelAdmin):
     list_filter = ('published_on', )
     search_fields = ['slug', 'title']
 
-    autocomplete_fields = ['authors', 'codes']
+    autocomplete_fields = ['authors', 'codes', 'slant']
     exclude = ['sort_title']
     inlines = [
         InstallmentInline,

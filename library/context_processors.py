@@ -1,5 +1,7 @@
 from django.urls import reverse
 
+from library.models import Slant
+
 
 # noinspection PyUnusedLocal
 def site_processor(request):
@@ -12,4 +14,7 @@ def site_processor(request):
         {'name': 'codes', 'href': reverse('codes'), 'label': 'Codes'},
         {'name': 'lists', 'href': reverse('lists'), 'label': 'Lists'},
     ]
-    return {'site_links': [sl for sl in site_links if sl['name'] != url_name]}
+    return {
+        'site_links': [sl for sl in site_links if sl['name'] != url_name],
+        'slants': [s for s in Slant.objects.all()],
+    }

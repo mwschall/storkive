@@ -102,7 +102,7 @@ def author_index(request):
 def author_page(request, author):
     author = get_object_or_404(Author, slug=author)
     stories = author.stories \
-        .only('slug', 'title', 'slant', 'published_on', 'updated_on') \
+        .only('slug', 'title', 'slant_id', 'published_on', 'updated_on') \
         .annotate(code_abbrs=Story.codes_sq(),
                   installment_count=Story.installment_count_sq(),
                   missing_count=Story.missing_count_sq())
@@ -134,7 +134,7 @@ def code_page(request, abbr):
     code = get_object_or_404(Code, abbr=abbr)
     stories = Story.display_objects \
         .filter(codes__abbr=abbr) \
-        .only('slug', 'title', 'slant') \
+        .only('slug', 'title', 'slant_id') \
         .iterator()
     context = {
         'page_title': 'Codes; '+abbr,
@@ -255,7 +255,7 @@ def list_page(request, pk):
     # TODO: put this Story link + codes query somewhere central
     stories = Story.display_objects \
         .filter(list_entries__list=user_list) \
-        .only('slug', 'title', 'slant') \
+        .only('slug', 'title', 'slant_id') \
         .iterator()
     context = {
         'page_title': 'Lists',

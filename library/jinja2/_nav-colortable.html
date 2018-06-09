@@ -1,0 +1,8 @@
+<nav class="colortable">
+  Colors:
+  {% for slant in slants %}
+  <a class="{{ slant.abbr }}" href="{{ slant.get_absolute_url() }}">
+    {{- slant.description -}}
+  </a>
+  {% endfor %}
+</nav>

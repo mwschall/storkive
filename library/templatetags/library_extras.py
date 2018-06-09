@@ -8,7 +8,7 @@ register = template.Library()
 
 @register.filter
 def classes(value):
-    return ' '.join(filter(None, value))
+    return ' '.join(filter(None, [str(v) for v in value]))
 
 
 # noinspection PyShadowingBuiltins

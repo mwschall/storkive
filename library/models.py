@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from library.expressions import Concat, SQCount
+from library.fields import CssField
 from library.managers import OrderedLowerManager
 from library.mixins import AuthorsMixin, CodesMixin, DEFAULT_AUTHOR_SEP
 from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color, s_uuid
@@ -26,8 +27,7 @@ class List(models.Model):
         max_length=70,
         unique=True,
     )
-    color = models.CharField(
-        max_length=25,
+    color = CssField(
         default='inherit',
     )
     priority = models.SmallIntegerField(
@@ -42,7 +42,7 @@ class List(models.Model):
         return self.entries.count()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     class Meta:
         ordering = ['-priority', 'name']
@@ -83,7 +83,7 @@ class Source(models.Model):
     website = models.URLField()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Author(models.Model):
@@ -105,7 +105,7 @@ class Author(models.Model):
     objects = OrderedLowerManager('name')
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     def get_absolute_url(self):
         return reverse('author', args=[str(self.slug)])
@@ -145,10 +145,42 @@ class Code(models.Model):
     )
 
     def __str__(self):
-        return self.abbr
+        return str(self.abbr)
 
     class Meta:
         ordering = ['abbr']
+
+    def get_absolute_url(self):
+        return reverse('code', args=[str(self.abbr)])
+
+
+class Slant(models.Model):
+    abbr = models.CharField(
+        primary_key=True,
+        max_length=2,
+        unique=True,
+        verbose_name='css class',
+        help_text='This cannot be changed.'
+    )
+    # TODO: cast to lowercase?
+    description = models.CharField(
+        max_length=50,
+    )
+    affinity = models.ForeignKey(
+        'Code',
+        verbose_name='code affinity',
+        on_delete=models.PROTECT,
+    )
+    display_order = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return str(self.abbr)
+
+    class Meta:
+        ordering = ['display_order']
+
+    def get_absolute_url(self):
+        return reverse('code', args=[str(self.affinity_id)])
 
 
 class StoryDisplayManager(models.Manager):
@@ -198,9 +230,12 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         blank=True,
         null=True,
     )
-    slant = models.CharField(
-        max_length=2,
+    slant = models.ForeignKey(
+        'Slant',
+        related_name='stories',
+        on_delete=models.PROTECT,
         blank=True,
+        null=True,
     )
     codes = models.ManyToManyField(
         Code,
@@ -234,6 +269,10 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
     @property
     def code_list(self):
         return self.codes.all()
+
+    @property
+    def slant_cls(self):
+        return self.slant_id
 
     @property
     def installment_count(self):
@@ -308,11 +347,11 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
     display_objects = StoryDisplayManager()
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
     class Meta:
         ordering = ['sort_title', 'published_on']
-        verbose_name_plural = "stories"
+        verbose_name_plural = 'stories'
 
     @staticmethod
     def authors_sq(separator=DEFAULT_AUTHOR_SEP):
@@ -641,8 +680,8 @@ class Saga(models.Model, AuthorsMixin, CodesMixin):
 
 
 class SagaEntry(models.Model):
-    saga = models.ForeignKey(Saga, on_delete=models.CASCADE)
-    story = models.ForeignKey(Story, on_delete=models.CASCADE)
+    saga = models.ForeignKey('Saga', on_delete=models.CASCADE)
+    story = models.ForeignKey('Story', on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField()
     # TODO: for stories that already include a grouping in their titles?
     # short_title = models.CharField(
@@ -651,8 +690,8 @@ class SagaEntry(models.Model):
     # )
 
     def __str__(self):
-        return self.story.slug
+        return str(self.story.slug)
 
-    class Meta(object):
+    class Meta:
         ordering = ['order']
         unique_together = ('saga', 'story')
