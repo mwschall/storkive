@@ -28,7 +28,7 @@ def index_cell(inst, col):
     if col == 'wc':
         return '%d words' % inst.length if inst.length else '(unknown)'
     elif col == 'cdate':
-        return inst.date_added.strftime('%d %b %Y') if inst.date_added else ''
+        return inst.date_published.strftime('%d %b %Y') if inst.date_published else ''
     elif col == 'mdate':
         return inst.date_updated.strftime('%d %b %Y') if inst.date_updated else ''
     else:
@@ -42,7 +42,7 @@ def story_count(num):
 
 @register.filter(is_safe=True)
 def up_count(story, up_date):
-    if story.added_at == up_date:
+    if story.published_on == up_date:
         result = '<strong>(new)</strong>'
     else:
         cnt = story.up_cnt

@@ -17,10 +17,10 @@
 {% if sagas and not saga %}
 <h3 class="sagas">{% include '_snippet-story-sagas.html' %}</h3>
 {% endif %}
-{% if story.added_at %}
-<h3 class="dateline">Added {{ story.added_at|long_fmt }}</h3>
-{% if story.updated_at != story.added_at %}
-<h3 class="dateline">Updated {{ story.updated_at|long_fmt }}</h3>
+{% if story.published_on %}
+<h3 class="dateline">Published {{ story.published_on|long_fmt }}</h3>
+{% if story.updated_on != story.published_on %}
+<h3 class="dateline">Updated {{ story.updated_on|long_fmt }}</h3>
 {% endif %}
 {% endif %}
 {% include '_snippet-code-links.html' %}

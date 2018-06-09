@@ -8,11 +8,11 @@
   <div>{% include '_snippet-story-link.html' %}</div>
   <div>{{ ' '.join(story.code_abbrs) }}</div>
   <div>{% include '_snippet-by.html' %}</div>
-  {% if story.added_at %}
-  <div class="ctime">Added {{ story.added_at|long_fmt }}</div>
+  {% if story.published_on %}
+  <div class="ctime">Published {{ story.published_on|long_fmt }}</div>
   {% endif %}
-  {% if story.updated_at and story.updated_at != story.added_at %}
-  <div class="mtime">Updated {{ story.updated_at|long_fmt }}</div>
+  {% if story.updated_on and story.updated_on != story.published_on %}
+  <div class="mtime">Updated {{ story.updated_on|long_fmt }}</div>
   {% endif %}
   <div><p>{{ story.synopsis }}</p></div>
 </div>

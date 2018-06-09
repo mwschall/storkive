@@ -33,7 +33,7 @@
 <tr>
   <th class="story">Title</th>
   <th class="codes">Codes</th>
-  <th class="cdate">Added</th>
+  <th class="cdate">Published</th>
 </tr>
 </thead>
 <tbody>
@@ -41,7 +41,7 @@
 <tr>
   <td>{% include '_snippet-story-link.html' %}</td>
   <td>{{ ' '.join(story.code_abbrs) }}</td>
-  <td>{{ story.added_at|short_fmt }}</td>
+  <td>{{ story.published_on|short_fmt }}</td>
 </tr>
 {% endfor %}
 </tbody>

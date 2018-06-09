@@ -64,7 +64,7 @@ class ListEntry(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     # ordinal = models.SmallIntegerField()
-    added_at = models.DateTimeField(
+    created_at = models.DateTimeField(
         auto_now_add=True
     )
 
@@ -183,16 +183,18 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         # allow_unicode=True,
     )
     authors = models.ManyToManyField(Author, related_name='stories')
-    added_at = models.DateField(
+    published_on = models.DateField(
         blank=True,
         null=True,
     )
-    # TODO: generate this from chapter data?
-    updated_at = models.DateField(
+    updated_on = models.DateField(
         blank=True,
         null=True,
     )
-    removed_at = models.DateField(
+    added_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+    removed_at = models.DateTimeField(
         blank=True,
         null=True,
     )
@@ -263,8 +265,8 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
     # @cached_property
     # def installment_dates(self):
     #     return self.installments.values('ordinal').annotate(
-    #         date_added=Min('added_at'),
-    #         date_updated=Max('added_at'),
+    #         date_published=Min('published_on'),
+    #         date_updated=Max('published_on'),
     #     )
 
     @cached_property
@@ -272,11 +274,11 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         qs = self.installments \
             .values('ordinal') \
             .order_by('ordinal') \
-            .annotate(date_added=Min('added_at'),
-                      date_updated=Max('added_at'))
+            .annotate(date_published=Min('published_on'),
+                      date_updated=Max('published_on'))
         return {
             d['ordinal']: {
-                'date_added': d['date_added'],
+                'date_published': d['date_published'],
                 'date_updated': d['date_updated'],
             }
             for d in qs
@@ -309,7 +311,7 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         return self.title
 
     class Meta:
-        ordering = ['sort_title', 'added_at']
+        ordering = ['sort_title', 'published_on']
         verbose_name_plural = "stories"
 
     @staticmethod
@@ -353,8 +355,8 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         if not self.sort_title:
             self.sort_title = get_sort_name(self.title)[:self.TITLE_LEN]
         self.full_clean()
-        if not self.updated_at:
-            self.updated_at = self.added_at
+        if not self.updated_on:
+            self.updated_on = self.published_on
         super(Story, self).save(*args, **kwargs)
 
 
@@ -392,8 +394,10 @@ class Installment(models.Model):
         max_length=TITLE_LEN,
     )
     authors = models.ManyToManyField(Author)
-    added_at = models.DateField()
-    # TODO: published date?
+    published_on = models.DateField()
+    added_at = models.DateTimeField(
+        auto_now_add=True,
+    )
     length = models.IntegerField(
         default=0,
     )
@@ -432,7 +436,7 @@ class Installment(models.Model):
         checksum = b64md5sum(buf)
         if checksum != self.checksum:
             buf.seek(0)
-            file_path = inst_path(self.story.slug, self.ordinal, self.added_at)
+            file_path = inst_path(self.story.slug, self.ordinal, self.published_on)
             self.file.save(file_path, buf)
             self.checksum = checksum
 
@@ -441,7 +445,7 @@ class Installment(models.Model):
         # NOTE: this only good if prefetching all versions of all whatevers
         installments = self.story.installments.all()
         versions = [inst for inst in installments if inst.ordinal == self.ordinal]
-        # return sorted(versions, key=lambda inst: inst.added_at)
+        # return sorted(versions, key=lambda inst: inst.published_on)
         return versions
 
         # return self.story.installments.filter(ordinal=self.ordinal)
@@ -451,22 +455,22 @@ class Installment(models.Model):
         return True if self.file else False
 
     @property
-    def date_added(self):
+    def date_published(self):
         dates = self.story.installment_dates[self.ordinal]
-        return dates['date_added'] if dates['date_added'].year > 1 else None
+        return dates['date_published'] if dates['date_published'].year > 1 else None
 
-        # return self.versions[0].added_at
+        # return self.versions[0].published_on
 
     @property
     def date_updated(self):
         dates = self.story.installment_dates[self.ordinal]
-        added_at = dates['date_added']
-        updated_at = dates['date_updated']
-        return updated_at if updated_at != added_at else None
+        published_on = dates['date_published']
+        updated_on = dates['date_updated']
+        return updated_on if updated_on != published_on else None
 
-        # added_at = self.date_added_at
-        # updated_at = self.versions[-1].added_at
-        # return updated_at if updated_at != added_at else None
+        # published_on = self.date_published_on
+        # updated_on = self.versions[-1].published_on
+        # return updated_on if updated_on != published_on else None
 
     @property
     def story_str(self):
@@ -476,7 +480,7 @@ class Installment(models.Model):
         return '{} [{:03d}] ~ {}'.format(self.story.title, self.ordinal, self.title)
 
     class Meta:
-        unique_together = ('story', 'ordinal', 'added_at')
+        unique_together = ('story', 'ordinal', 'published_on')
 
     @staticmethod
     def _ord_seeker(forward=True):
@@ -511,7 +515,7 @@ class SagaDisplayManager(models.Manager):
         return super().get_queryset() \
             .annotate(author_dicts=Saga.authors_sq(),
                       code_abbrs=Saga.codes_sq(),
-                      updated_at=Saga.updated_at_sq(),
+                      updated_on=Saga.updated_on_sq(),
                       entry_count=Saga.entry_count_sq())
 
 
@@ -613,12 +617,12 @@ class Saga(models.Model, AuthorsMixin, CodesMixin):
                         )
 
     @staticmethod
-    def updated_at_sq():
+    def updated_on_sq():
         return Subquery(Installment.objects
-                        .order_by('-added_at')
+                        .order_by('-published_on')
                         .filter(story__sagas__pk=OuterRef('pk'),
                                 is_current=True)
-                        .values('added_at')[:1]
+                        .values('published_on')[:1]
                         )
 
     @staticmethod

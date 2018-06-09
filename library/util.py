@@ -102,11 +102,11 @@ def get_sort_name(name):
 STORIES_DIR = 'stories'
 
 
-def inst_path(slug, ordinal, added_at):
+def inst_path(slug, ordinal, published_on):
     sort_dir = slug[0].upper()
     sort_dir = sort_dir if re.match(r'[A-Z]', sort_dir) else '_'
     file_name = '{}.{:03d}.{:%Y-%m-%d}.{}'.format(
-        slug, ordinal, added_at, 'html')
+        slug, ordinal, published_on, 'html')
     # TODO: make this not break on Windows
     #       form really depends on the django storage in use, or is that handled?
     return '/'.join((STORIES_DIR, sort_dir, slug, file_name))
