@@ -3,9 +3,9 @@
   if saga else
   url('story', args=[story.slug])
 }}"><cite>{{ story.title }}</cite></a>
-{%- if not story.installment_count or story.installment_count == story.missing_count -%}
+{%- if story.installment_count == 0 or
+       story.installment_count and story.installment_count == story.missing_count -%}
   <abbr title="No Installments"> **</abbr>
 {%- elif story.missing_count -%}
   <abbr title="Missing Installments"> *</abbr>
-{% endif %}
-{%- if up_date %} {{ story|up_count(up_date.date) }}{% endif %}
+{%- endif %}

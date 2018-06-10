@@ -1,11 +1,16 @@
-from django.urls import path
+from django.urls import path, register_converter
 
+from library.converters import FourDigitYearConverter
 from . import views
+
+register_converter(FourDigitYearConverter, 'yyyy')
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('theme-<slug:pk>.css', views.theme_css, name='theme'),
     path('WhatsNew.html', views.whats_new, name='whats_new'),
+    path('WhatWasNew.html', views.what_was_new, name='what_was_new'),
+    path('WhatWasNew<yyyy:year>.html', views.what_was_new, name='wwn_year'),
     path('Authors/index.html', views.author_index, name='authors'),
     path('Authors/<slug:author>.html', views.author_page, name='author'),
     path('Codes/index.html', views.code_index, name='codes'),

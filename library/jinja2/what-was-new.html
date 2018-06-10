@@ -1,0 +1,37 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<h3 class="title">{{ page_title }}</h3>
+{% for week in weeks %}
+
+<section><h3 id="{{ week.number }}" class="dateline">Week {{ week.number }}</h3>
+<p>Added {% if week.added %}
+{% for story in week.added -%}
+  {% include '_snippet-story-link.html' %}
+  {%- if loop.index == loop.length - 1 %} and
+  {% elif loop.length > 1 and not loop.last %};
+  {% endif %}
+{% endfor %}.
+{%- endif %}
+{% if week.updated %}
+{% if week.added %}
+
+Also added {% endif %}{% for story in week.updated -%}
+  {{ story|up_count }} to {% include '_snippet-story-link.html' %}
+  {%- if loop.index == loop.length - 1 %} and
+  {% elif loop.length > 1 and not loop.last %};
+  {% endif %}
+{% endfor %}.
+{%- endif %}
+</p></section>
+{% endfor %}
+
+{% if prev_year %}
+<h3 class="trailer"><a href="{{ url('wwn_year', args=[prev_year]) }}">What Was New in {{ prev_year }}</a></h3>
+
+{% endif %}
+{% endblock %}
+
+{% block postnav %}
+{% include '_nav-colortable.html' %}
+{% endblock %}

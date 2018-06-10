@@ -1,7 +1,10 @@
+import datetime as dt
+from itertools import groupby
+
 from django.db import IntegrityError
 from django.db.models import F, Count, OuterRef, Min, Exists
-from django.db.models.functions import Substr, Upper
-from django.http import HttpResponse
+from django.db.models.functions import Substr, Upper, ExtractYear, ExtractWeek
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_safe, require_http_methods, condition
 
@@ -44,7 +47,7 @@ def whats_new(request):
         return Story.display_objects \
             .annotate(inst_on_date=Exists(new_insts_exist)) \
             .filter(inst_on_date=True) \
-            .annotate(up_cnt=SQCount(new_insts),
+            .annotate(up_count=SQCount(new_insts),
                       next_inst=ChillSubquery(next_inst[:1])) \
             .iterator()
 
@@ -55,6 +58,86 @@ def whats_new(request):
         'days': days,
     }
     return render(request, 'whats-new.html', context)
+
+
+@require_safe
+def what_was_new(request, year=None):
+    this_year = dt.date.today().year
+    if not year:
+        year = this_year
+
+    prev_year = Installment.objects \
+        .annotate(year=ExtractYear('published_on')) \
+        .filter(year__lt=year) \
+        .order_by('-year') \
+        .values_list('year', flat=True) \
+        .first()
+
+    prev_versions_sq = Installment.objects \
+        .order_by() \
+        .filter(story_id=OuterRef('story_id'),
+                ordinal=OuterRef('ordinal'),
+                published_on__lt=OuterRef('published_on')) \
+        .values('pk')
+
+    prev_insts_sq = Installment.objects \
+        .order_by() \
+        .annotate(year=ExtractYear('published_on'),
+                  week=ExtractWeek('published_on')) \
+        .filter(story_id=OuterRef('story_id'),
+                published_on__lt=OuterRef('published_on')) \
+        .exclude(year=OuterRef('year'), week=OuterRef('week')) \
+        .values('pk')
+
+    updates = Installment.objects \
+        .order_by() \
+        .values('story_id') \
+        .annotate(year=ExtractYear('published_on'),
+                  week=ExtractWeek('published_on'),
+                  is_revision=Exists(prev_versions_sq),
+                  is_update=Exists(prev_insts_sq),
+                  up_count=Count('story_id')) \
+        .filter(year=year, is_revision=False) \
+        .order_by('-week', 'is_update', 'story__sort_title') \
+        .values('story__title',
+                'story__slug',
+                'story__slant_id',
+                'week',
+                'is_update',
+                'up_count',
+                )
+
+    def map_story(story):
+        return {
+            'title': story['story__title'],
+            'slug': story['story__slug'],
+            'slant_cls': story['story__slant_id'],
+            'up_count': story['up_count'],
+        }
+
+    def make_week(number, stories):
+        week = {
+            'updated' if u else 'added': [map_story(s) for s in sl]
+            for u, sl in groupby(stories, lambda s: s['is_update'])
+        }
+        week['number'] = number
+        return week
+
+    weeks = [make_week(n, s) for n, s in groupby(updates, lambda u: u['week'])]
+    if not len(weeks):
+        raise Http404('No updates in {:d}.'.format(year))
+
+    context = {
+        'page_title': 'Previously Recent' if year == this_year else
+                      'What Was New in {:d}'.format(year),
+        'year': year,
+        'weeks': weeks,
+        # TODO: fix this when allowing Installments with NULL published_on
+        'prev_year': prev_year if prev_year and prev_year > 1 else None,
+    }
+
+    # TODO: missing_count
+    return render(request, 'what-was-new.html', context)
 
 
 @require_safe
@@ -258,7 +341,7 @@ def list_page(request, pk):
         .only('slug', 'title', 'slant_id') \
         .iterator()
     context = {
-        'page_title': 'Lists',
+        'page_title': user_list.name,
         'list': user_list,
         'stories': stories,
     }

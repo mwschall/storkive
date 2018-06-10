@@ -7,7 +7,12 @@
 <h3 class="dateline">{{ up_date.date|long_fmt }}</h3>
 {% for story in up_date.updates %}
 <div class="story item">
-  <div>{% include '_snippet-story-link.html' -%}
+  <div>
+    {%- include '_snippet-story-link.html' %} {% if story.published_on == up_date.date -%}
+      <strong>(new)</strong>
+    {%- else -%}
+      ({{ story|up_count }})
+    {%- endif -%}
     <a class="next arrow" href="{{
       url('installment', args=[story.slug, story.next_inst or 1])
       }}"> →</a></div>
@@ -17,6 +22,9 @@
 {% endfor %}
 </section>
 {% endfor %}
+
+<h3 class="trailer"><a href="{{ url('what_was_new') }}">What Was Previously Recent</a></h3>
+
 {% endblock %}
 
 {% block postnav %}
