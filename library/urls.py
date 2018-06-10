@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('theme-<slug:pk>.css', views.theme_css, name='theme'),
     path('WhatsNew.html', views.whats_new, name='whats_new'),
     path('Authors/index.html', views.author_index, name='authors'),
     path('Authors/<slug:author>.html', views.author_page, name='author'),

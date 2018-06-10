@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from library.models import Slant
+from library.models import Slant, Theme
 
 
 # noinspection PyUnusedLocal
@@ -15,6 +15,7 @@ def site_processor(request):
         {'name': 'lists', 'href': reverse('lists'), 'label': 'Lists'},
     ]
     return {
+        'current_theme': Theme.objects.filter(active=True).first(),
         'site_links': [sl for sl in site_links if sl['name'] != url_name],
         'slants': [s for s in Slant.objects.all()],
     }

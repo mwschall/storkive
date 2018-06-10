@@ -3,10 +3,10 @@ from django.db.models import F, Count, OuterRef, Min, Exists
 from django.db.models.functions import Substr, Upper
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.views.decorators.http import require_safe, require_http_methods
+from django.views.decorators.http import require_safe, require_http_methods, condition
 
 from library.expressions import SQCount, ChillSubquery
-from library.models import Author, Installment, List, Story, Code, Saga
+from library.models import Author, Installment, List, Story, Code, Saga, Theme
 
 ONE_DAY = 24 * 60 * 60
 
@@ -277,3 +277,17 @@ def list_toggle(request, pk, story):
         return HttpResponse(status=204)
     except (List.DoesNotExist, Story.DoesNotExist, IntegrityError):
         return HttpResponse(status=304)
+
+
+def theme_last_modified(request, pk):
+    try:
+        return Theme.objects.only('updated_at').get(pk=pk).updated_at
+    except Theme.DoesNotExist:
+        return None
+
+
+@require_safe
+@condition(last_modified_func=theme_last_modified)
+def theme_css(request, pk):
+    theme = get_object_or_404(Theme, pk=pk)
+    return HttpResponse(theme.css, content_type='text/css')

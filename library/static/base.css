@@ -8,9 +8,8 @@ header, hgroup, main, nav, section, summary {
 }
 
 body {
-  background: rgb(230, 230, 234);
   text-align: center;
-  font-family: 'PT Serif', Georgia, serif;
+  font-family: Georgia, serif;
 }
 
 abbr[title] {
@@ -24,12 +23,9 @@ a abbr[title] {
 }
 
 article {
-  color: black;
-  background: rgb(244, 244, 248);
   margin: 1rem auto;
   padding: 2rem 3rem;
   max-width: 36rem;
-  font-family: 'PT Serif', Georgia, serif;
   line-height: 155%;
   text-align: left;
   font-size: 98%;
@@ -75,12 +71,11 @@ article {
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
   -ms-hyphens: auto;
-  -o-hyphens: auto;
   text-align: justify;
 }
 
 #masthead {
-  font-family: Lucida Sans Unicode, Lucida Grande, sans-serif;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   font-size: 200%;
   font-weight: normal;
   margin: 0;
@@ -106,12 +101,11 @@ article {
 blockquote {
   margin-left: 1.25em;
   margin-right: 2em;
-  border-left: 3px solid rgb(230, 230, 234);
   padding-left: 0.75em;
 }
 
 nav {
-  font-family: Lucida Sans Unicode, Lucida Grande, sans-serif;
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
   font-size: 75%;
   margin: 0.5em;
 }
@@ -123,7 +117,7 @@ em em em  { font-style: italic }
 
 .castItem .name { font-style: italic }
 
-pre, kbd, .typewriter { font-family: courier new, courier, monospace }
+pre, kbd, .typewriter { font-family: "Courier New", Courier, monospace }
 
 section.saga {
   font-style: italic;
@@ -155,14 +149,14 @@ aside.categorization {
 }
 
 aside .lists {
-  background: rgb(244, 244, 248);
-  border-right: 0.1875rem solid rgb(230, 230, 234);
+  border-right: 0.1875rem solid transparent;
   position: absolute;
   top: -0.375rem;
   left: 2.0625rem;
   opacity: 0;
+  visibility: hidden;
   transform: translateX(-90%);
-  transition: all .25s ease;
+  transition: visibility 0s, all .25s ease;
   padding: 0.375rem 0 0.375rem 0.5rem;
   text-align: right;
   white-space: nowrap;
@@ -170,6 +164,7 @@ aside .lists {
 
 aside:hover .lists {
   opacity: 1;
+  visibility: visible;
   transform: translateX(-100%);
 }
 
@@ -276,7 +271,6 @@ section + section {
 }
 
 header section, footer section, .note {
-  background: rgb(230, 230, 234);
   padding: 0.5em;
 }
 
@@ -300,7 +294,7 @@ dt {
 }
 
 .screenplay {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   text-indent: 0;
   margin-left: 1em
 }
@@ -358,18 +352,14 @@ th.wc {
 }
 
 table.index {
-  width: 120%;
-  margin-left: -3em;
-  margin-right: -3em;
+  width: 116.66666667%;
+  margin-left: -3rem;
+  margin-right: -3rem;
 }
 
 .index {
   margin-top: 1.5em;
   margin-bottom: 2em;
-}
-
-.index tr:nth-child(even) {
-  background: rgb(230, 230, 234);
 }
 
 .index td, .index th {
@@ -395,70 +385,13 @@ section .index {
 }
 
 div.item {
-  width: 120%;
-  margin-left: -3em;
-  margin-right: -3em;
+  margin-left: -3rem;
+  margin-right: -3rem;
   padding-top: 1em;
   padding-bottom: 1em;
 }
 
 div.item div {
-  padding-left: 3em;
-  padding-right: 3em;
-}
-
-div.item:nth-child(even) {
-  background: rgb(230, 230, 234);
-}
-
-a:link {
-  text-decoration: none;
-  color: black;
-}
-
-article a:link {
-  background: rgb(216, 216, 216);
-  background: rgba(128, 128, 133, 0.25);
-}
-
-a.arrow:link,
-.index a:link {
-  background: none;
-}
-
-a.arrow:hover,
-.index a:hover {
-  background: rgb(115, 115, 166);
-  background: rgba(72, 61, 139, 0.75);
-}
-
-a:visited {
-  color: black;
-}
-
-a:hover {
-  color: white;
-  background: rgb(115, 115, 166);
-  background: rgba(72, 61, 139, 0.75);
-}
-
-article a:visited {
-  color: rgb(72, 61, 139);
-}
-
-article a:hover {
-  color: white;
-  background: rgb(115, 115, 166);
-  background: rgba(72, 61, 139, 0.75);
-}
-
-a.saga:link {
-  background: rgb(225, 204, 176);
-  background: rgba(209, 124, 0, 0.25);
-}
-
-a.saga:hover {
-  background: rgb(214, 151, 59);
-  background: rgba(209, 124, 0, 0.75);
-  color: white;
+  padding-left: 3rem;
+  padding-right: 3rem;
 }

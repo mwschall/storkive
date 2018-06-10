@@ -3,7 +3,7 @@ from django import forms
 from django.contrib import admin
 
 from library.forms import TextField
-from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry, Slant
+from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry, Slant, Theme
 
 
 @admin.register(Source)
@@ -147,3 +147,12 @@ class SagaAdmin(admin.ModelAdmin):
     inlines = [
         SagaEntryInline,
     ]
+
+
+@admin.register(Theme)
+class ThemeAdmin(admin.ModelAdmin):
+    fields = (
+        'name',
+        'active',
+        'css',
+    )

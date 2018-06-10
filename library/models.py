@@ -9,16 +9,10 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from library.expressions import Concat, SQCount
-from library.fields import CssField
+from library.fields import CssField, ShortUUIDField
 from library.managers import OrderedLowerManager
 from library.mixins import AuthorsMixin, CodesMixin, DEFAULT_AUTHOR_SEP
-from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color, s_uuid
-
-DEFAULT_SLUG_LEN = 8
-
-
-def _slug_gen():
-    return s_uuid(DEFAULT_SLUG_LEN)
+from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, is_css_color
 
 
 # TODO: Come up with a more specific name for this functionality. Or don't.
@@ -559,10 +553,8 @@ class SagaDisplayManager(models.Manager):
 
 
 class Saga(models.Model, AuthorsMixin, CodesMixin):
-    slug = models.CharField(
+    slug = ShortUUIDField(
         primary_key=True,
-        max_length=DEFAULT_SLUG_LEN,
-        default=_slug_gen,
     )
     name = models.CharField(
         max_length=Story.TITLE_LEN,
@@ -629,13 +621,13 @@ class Saga(models.Model, AuthorsMixin, CodesMixin):
         if not self.sort_name:
             self.sort_name = get_sort_name(self.name)[:Story.TITLE_LEN]
 
-        # TODO: is this safe?
+        # TODO: is this safe? no, it's not...
         while True:
             try:
                 super(Saga, self).save(*args, **kwargs)
                 break
             except IntegrityError:
-                self.slug = _slug_gen()
+                self.slug = ShortUUIDField.gen()
 
     @staticmethod
     def authors_sq(separator=DEFAULT_AUTHOR_SEP):
@@ -695,3 +687,36 @@ class SagaEntry(models.Model):
     class Meta:
         ordering = ['order']
         unique_together = ('saga', 'story')
+
+
+class Theme(models.Model):
+    slug = ShortUUIDField(
+        primary_key=True,
+    )
+    name = models.CharField(
+        max_length=50,
+        unique=True,
+    )
+    css = models.TextField()
+    active = models.BooleanField(
+        default=False,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    objects = OrderedLowerManager('name')
+
+    def __str__(self):
+        return str(self.name)
+
+    # TODO: atomic?
+    def save(self, *args, **kwargs):
+        # https://stackoverflow.com/a/44720466
+        if self.active:
+            qs = type(self).objects.filter(active=True)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            qs.update(active=False)
+
+        super(Theme, self).save(*args, **kwargs)

@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <title>{{ page_title if page_title else "Storkive Digital Library" }}</title>
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Serif" />
   <link rel="stylesheet" href="{{ static('base.css') }}" />
+  {% if current_theme %}
+  <link rel="stylesheet" href="{{ url('theme', args=[current_theme.slug]) }}" />
+  {% else %}
+  <link rel="stylesheet" href="{{ static('default-theme.css') }}" />
+  {% endif %}
   {% block skeletoncss %}{% endblock %}
   {% block skeletonlinks %}{% endblock %}
   {% block skeletonmeta %}{% endblock %}

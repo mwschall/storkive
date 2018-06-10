@@ -1,0 +1,84 @@
+@import url("https://fonts.googleapis.com/css?family=PT+Serif");
+
+body {
+  background: rgb(230, 230, 234);
+  font-family: "PT Serif", Georgia, serif;
+}
+
+article {
+  color: black;
+  background: rgb(244, 244, 248);
+}
+
+blockquote {
+  border-left: 3px solid rgb(230, 230, 234);
+}
+
+.index tr:nth-child(even) {
+  background: rgb(230, 230, 234);
+}
+
+div.item:nth-child(even) {
+  background: rgb(230, 230, 234);
+}
+
+a:link {
+  text-decoration: none;
+  color: black;
+}
+
+article a:link {
+  background: rgb(216, 216, 216);
+  background: rgba(128, 128, 133, 0.25);
+}
+
+aside .lists {
+  background: rgb(244, 244, 248);
+  border-right-color: rgb(230, 230, 234);
+}
+
+header section, footer section, .note {
+  background: rgb(230, 230, 234);
+}
+
+a.arrow:link,
+.index a:link {
+  background: none;
+}
+
+a.arrow:hover,
+.index a:hover {
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}
+
+a:visited {
+  color: black;
+}
+
+a:hover {
+  color: white;
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}
+
+article a:visited {
+  color: rgb(72, 61, 139);
+}
+
+article a:hover {
+  color: white;
+  background: rgb(115, 115, 166);
+  background: rgba(72, 61, 139, 0.75);
+}
+
+a.saga:link {
+  background: rgb(225, 204, 176);
+  background: rgba(209, 124, 0, 0.25);
+}
+
+a.saga:hover {
+  background: rgb(214, 151, 59);
+  background: rgba(209, 124, 0, 0.75);
+  color: white;
+}
