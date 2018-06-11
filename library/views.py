@@ -1,6 +1,7 @@
 import datetime as dt
 from itertools import groupby
 
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import F, Count, OuterRef, Min, Exists
 from django.db.models.functions import Substr, Upper, ExtractYear, ExtractWeek
@@ -289,6 +290,7 @@ def story_page(request, story, saga=None):
 
 
 @require_safe
+@login_required
 def installment_page(request, story, ordinal, saga=None):
     qs = Story.objects.only('slug', 'title')
     story = get_object_or_404(qs, slug=story)
@@ -324,6 +326,7 @@ def installment_page(request, story, ordinal, saga=None):
 
 
 @require_safe
+@login_required
 def list_index(request):
     context = {
         'page_title': 'Lists',
@@ -333,6 +336,7 @@ def list_index(request):
 
 
 @require_safe
+@login_required
 def list_page(request, pk):
     user_list = get_object_or_404(List, pk=pk)
     # TODO: put this Story link + codes query somewhere central
@@ -349,6 +353,7 @@ def list_page(request, pk):
 
 
 @require_http_methods(['PUT', 'DELETE'])
+@login_required
 def list_toggle(request, pk, story):
     try:
         user_list = List.objects.get(pk=pk)

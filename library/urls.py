@@ -1,3 +1,4 @@
+import django.contrib.auth.views as auth_views
 from django.urls import path, register_converter
 
 from library.converters import FourDigitYearConverter
@@ -7,6 +8,8 @@ register_converter(FourDigitYearConverter, 'yyyy')
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('login/', auth_views.LoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('theme-<slug:pk>.css', views.theme_css, name='theme'),
     path('WhatsNew.html', views.whats_new, name='whats_new'),
     path('WhatWasNew.html', views.what_was_new, name='what_was_new'),

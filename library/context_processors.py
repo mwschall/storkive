@@ -5,6 +5,13 @@ from library.models import Slant, Theme
 
 # noinspection PyUnusedLocal
 def site_processor(request):
+    # figure out which theme to use
+    try:
+        current_theme = request.user.profile.theme
+    except AttributeError:
+        current_theme = Theme.objects.filter(active=True).first()
+
+    # compute the nav links to show
     url_name = request.resolver_match.url_name
     site_links = [
         {'name': 'whats_new', 'href': reverse('whats_new'), 'label': "What's New"},
@@ -14,8 +21,10 @@ def site_processor(request):
         {'name': 'codes', 'href': reverse('codes'), 'label': 'Codes'},
         {'name': 'lists', 'href': reverse('lists'), 'label': 'Lists'},
     ]
+    site_links = [sl for sl in site_links if sl['name'] != url_name]
+
     return {
-        'current_theme': Theme.objects.filter(active=True).first(),
-        'site_links': [sl for sl in site_links if sl['name'] != url_name],
-        'slants': [s for s in Slant.objects.all()],
+        'current_theme': current_theme,
+        'site_links': site_links,
+        'slants': Slant.objects.all(),
     }

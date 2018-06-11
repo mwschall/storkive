@@ -1,5 +1,6 @@
 from io import BytesIO
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -720,3 +721,16 @@ class Theme(models.Model):
             qs.update(active=False)
 
         super(Theme, self).save(*args, **kwargs)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        related_name='profile',
+        on_delete=models.CASCADE,
+    )
+    theme = models.ForeignKey(
+        'Theme',
+        null=True,
+        on_delete=models.SET_NULL,
+    )

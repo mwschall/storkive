@@ -22,7 +22,7 @@ a abbr[title] {
   cursor: inherit !important;
 }
 
-article {
+article, form {
   margin: 1rem auto;
   padding: 2rem 3rem;
   max-width: 36rem;
@@ -30,6 +30,11 @@ article {
   text-align: left;
   font-size: 98%;
   text-rendering: optimizeLegibility;
+}
+
+form {
+  max-width: 18rem;
+  text-align: center;
 }
 
 @supports (hyphens: auto) {
