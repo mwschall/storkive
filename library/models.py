@@ -18,9 +18,16 @@ from library.util import get_sort_name, get_author_slug, b64md5sum, inst_path, i
 
 # TODO: Come up with a more specific name for this functionality. Or don't.
 class List(models.Model):
+    slug = ShortUUIDField(
+        unique=True,
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='lists',
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(
         max_length=70,
-        unique=True,
     )
     color = CssField(
         default='inherit',
@@ -34,13 +41,20 @@ class List(models.Model):
 
     @property
     def entry_count(self):
-        return self.entries.count()
+        if not hasattr(self, '_ec'):
+            self._ec = self.entries.count()
+        return self._ec
+
+    @entry_count.setter
+    def entry_count(self, value):
+        self._ec = value
 
     def __str__(self):
         return str(self.name)
 
     class Meta:
         ordering = ['-priority', 'name']
+        unique_together = ['user', 'name']
 
     def clean_fields(self, exclude=None):
         super(List, self).clean_fields(exclude)
@@ -65,6 +79,7 @@ class ListEntry(models.Model):
 
     class Meta:
         unique_together = ('list', 'content_type', 'object_id')
+        verbose_name_plural = 'entries'
 
 
 class Source(models.Model):
@@ -242,20 +257,13 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
     )
     list_entries = GenericRelation(ListEntry, related_query_name='story')
 
-    @cached_property
-    def lists(self):
+    def user_lists(self, user):
         entries = self.list_entries \
             .select_related('list') \
+            .filter(list__user=user) \
             .order_by('-list__priority', 'list__name') \
             .all()
         return [entry.list for entry in entries]
-
-    @property
-    def primary_list(self):
-        try:
-            return self.lists[0]
-        except IndexError:
-            return None
 
     @property
     def author_list(self):
@@ -688,6 +696,7 @@ class SagaEntry(models.Model):
     class Meta:
         ordering = ['order']
         unique_together = ('saga', 'story')
+        verbose_name_plural = 'entries'
 
 
 class Theme(models.Model):

@@ -3,6 +3,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
+from django.db.models import Count
 
 from library.forms import TextField
 from library.models import Author, Installment, Story, Code, Source, List, Saga, SagaEntry, Slant, Theme, UserProfile
@@ -75,14 +76,14 @@ class InstallmentAdminForm(forms.ModelForm):
 @admin.register(Installment)
 class InstallmentAdmin(admin.ModelAdmin):
     list_display = ('story_str', 'published_on', 'title')
+    ordering = ('story', 'ordinal', 'published_on')
     search_fields = ['story__slug', 'published_on']
     form = InstallmentAdminForm
     autocomplete_fields = ['story', 'authors']
 
     def get_queryset(self, request):
         return super(InstallmentAdmin, self).get_queryset(request) \
-            .select_related('story') \
-            .order_by('story', 'ordinal', 'published_on')
+            .select_related('story')
 
     def save_model(self, request, obj, form, change):
         obj.file_as_html = form.cleaned_data['file_as_html']
@@ -125,7 +126,22 @@ class StoryAdmin(admin.ModelAdmin):
 
 @admin.register(List)
 class ListAdmin(admin.ModelAdmin):
-    list_display = ('name', 'priority', 'entry_count')
+    list_display = ('name', 'user', 'priority', 'entry_count')
+    ordering = ('user__username', '-priority', 'name')
+
+    def get_queryset(self, request):
+        return super(ListAdmin, self).get_queryset(request) \
+            .annotate(entry_count=Count('entries'))
+
+    fields = (
+        'slug',
+        'user',
+        'name',
+        'color',
+        'priority',
+        'auto_sort',
+    )
+    readonly_fields = ['slug']
 
 
 class SagaEntryInline(SortableInlineAdminMixin, admin.TabularInline):

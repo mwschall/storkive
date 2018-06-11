@@ -4,11 +4,9 @@
 <article id="storkive">
 <h3 class="title">Skorkive Digital Library</h3>
 <section>
-  <h3><a href="{{ url('whats_new') }}">Recent Additions</a></h3>
-  <h3><a href="{{ url('titles') }}">Titles</a></h3>
-  <h3><a href="{{ url('authors') }}">Authors</a></h3>
-  <h3><a href="{{ url('codes') }}">Codes</a></h3>
-  <h3><a href="{{ url('lists') }}">Lists</a></h3>
+  {% for link in site_links %}
+  <h3><a href="{{ link.href }}">{{ link.label }}</a></h3>
+  {% endfor %}
 </section>
 </article>
 {% endblock %}

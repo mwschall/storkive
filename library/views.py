@@ -269,8 +269,8 @@ def story_page(request, story, saga=None):
         'story': story,
         'next': story.first_ordinal,
         'installment_count': story.installment_count,
-        'lists': List.objects.all(),
-        'story_lists': [l.pk for l in story.lists],
+        'user_lists': request.user.lists.all(),
+        'story_lists': story.user_lists(request.user),
     }
     if story.installment_count == 1:
         context['chapter'] = installments[0]
@@ -330,16 +330,15 @@ def installment_page(request, story, ordinal, saga=None):
 def list_index(request):
     context = {
         'page_title': 'Lists',
-        'lists': List.objects.all(),
+        'lists': request.user.lists.all(),
     }
     return render(request, 'lists.html', context)
 
 
 @require_safe
 @login_required
-def list_page(request, pk):
-    user_list = get_object_or_404(List, pk=pk)
-    # TODO: put this Story link + codes query somewhere central
+def list_page(request, coll):
+    user_list = get_object_or_404(List, slug=coll, user=request.user)
     stories = Story.display_objects \
         .filter(list_entries__list=user_list) \
         .only('slug', 'title', 'slant_id') \
@@ -354,9 +353,9 @@ def list_page(request, pk):
 
 @require_http_methods(['PUT', 'DELETE'])
 @login_required
-def list_toggle(request, pk, story):
+def list_toggle(request, coll, story):
     try:
-        user_list = List.objects.get(pk=pk)
+        user_list = List.objects.get(slug=coll, user=request.user)
         story = Story.objects.filter(slug=story).only('pk').get()
         if request.method == 'PUT':
             story.list_entries.create(list=user_list)
@@ -367,15 +366,15 @@ def list_toggle(request, pk, story):
         return HttpResponse(status=304)
 
 
-def theme_last_modified(request, pk):
+def theme_last_modified(request, theme):
     try:
-        return Theme.objects.only('updated_at').get(pk=pk).updated_at
+        return Theme.objects.only('updated_at').get(slug=theme).updated_at
     except Theme.DoesNotExist:
         return None
 
 
 @require_safe
 @condition(last_modified_func=theme_last_modified)
-def theme_css(request, pk):
-    theme = get_object_or_404(Theme, pk=pk)
+def theme_css(request, theme):
+    theme = get_object_or_404(Theme, slug=theme)
     return HttpResponse(theme.css, content_type='text/css')
