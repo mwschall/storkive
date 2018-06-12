@@ -1,4 +1,5 @@
 {# ⭑ ⭒ ★ ☆ #}
+{% if user_lists %}
 <aside class="user categorization" data-story="{{ story.slug }}">
   {% if story_lists %}
   <span class="primary star active"
@@ -17,3 +18,4 @@
     {% endfor %}
   </div>
 </aside>
+{% endif %}

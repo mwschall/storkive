@@ -5,7 +5,7 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = cwd[:-9]  # chop off "settings/"
 
 # Security
-# https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
+# https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 try:
     SECRET_KEY = os.environ['SECRET_KEY']
@@ -26,7 +26,7 @@ X_FRAME_OPTIONS = 'DENY'
 # SECURITY WARNING: App Engine's security features ensure that it is safe to
 # have ALLOWED_HOSTS = ['*'] when the app is deployed. If you deploy a Django
 # app not on App Engine, make sure to set an appropriate host here.
-# See https://docs.djangoproject.com/en/1.10/ref/settings/
+# See https://docs.djangoproject.com/en/dev/ref/settings/
 ALLOWED_HOSTS = ['*']
 
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
 
 
 # Database
-# https://docs.djangoproject.com/en/2.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -53,6 +53,6 @@ DATABASES = {
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+# https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')

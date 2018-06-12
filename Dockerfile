@@ -5,12 +5,10 @@ ENV PYTHONUNBUFFERED 1
 
 ENV APP_ENV=prod \
     APP_DIR=/code \
-    VENV_DIR=/venv \
-    REQS_TXT=/requirements.txt \
     DJANGO_PROJECT=storkive
 
 
-COPY requirements.txt $REQS_TXT
+COPY requirements.txt /requirements.txt
 
 # Install build deps, then run `pip install`, then remove unneeded build deps all in
 # a single step. Correct the path to your production requirements file, if needed.
@@ -26,9 +24,9 @@ RUN set -ex \
             linux-headers \
             pcre-dev \
             postgresql-dev \
-    && python3 -m venv $VENV_DIR \
-    && $VENV_DIR/bin/pip install -U pip \
-    && LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "$VENV_DIR/bin/pip install --no-cache-dir -r $REQS_TXT" \
+    && python3 -m venv /venv \
+    && /venv/bin/pip install -U pip \
+    && LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "/venv/bin/pip install --no-cache-dir -r /requirements.txt" \
     && runDeps="$( \
             scanelf --needed --nobanner --recursive /venv \
                     | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
@@ -53,7 +51,7 @@ EXPOSE $LISTEN_PORT
 ENV DJANGO_SETTINGS_MODULE=settings
 
 # uWSGI configuration (customize as needed):
-ENV UWSGI_VIRTUALENV=$VENV_DIR \
+ENV UWSGI_VIRTUALENV=/venv \
     UWSGI_WSGI_FILE=$DJANGO_PROJECT/wsgi.py \
     UWSGI_HTTP=:$LISTEN_PORT \
     UWSGI_MASTER=1 \
@@ -66,7 +64,7 @@ ENV UWSGI_VIRTUALENV=$VENV_DIR \
 
 # Call collectstatic (customize the following line with the minimal environment variables
 # needed for manage.py to run):
-RUN DATABASE_HOST=none $VENV_DIR/bin/python manage.py collectstatic --noinput
+RUN DATABASE_HOST=none /venv/bin/python manage.py collectstatic --noinput
 
 # Start uWSGI
-CMD ["$VENV_DIR/bin/uwsgi", "--http-auto-chunked", "--http-keepalive"]
+CMD ["/venv/bin/uwsgi", "--http-auto-chunked", "--http-keepalive"]

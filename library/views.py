@@ -269,9 +269,8 @@ def story_page(request, story, saga=None):
         'story': story,
         'next': story.first_ordinal,
         'installment_count': story.installment_count,
-        'user_lists': request.user.lists.all(),
-        'story_lists': story.user_lists(request.user),
     }
+
     if story.installment_count == 1:
         context['chapter'] = installments[0]
     elif not story.installment_count:
@@ -285,6 +284,14 @@ def story_page(request, story, saga=None):
         if next(filter(lambda inst: inst.date_updated, installments), None):
             context['headers'].append({'cls': 'mdate', 'name': 'Updated'})
         context['installments'] = installments
+
+    try:
+        context.update({
+            'user_lists': request.user.lists.all(),
+            'story_lists': story.user_lists(request.user),
+        })
+    except AttributeError:
+        pass
 
     return render(request, 'title.html', context)
 
@@ -368,7 +375,7 @@ def list_toggle(request, coll, story):
 
 def theme_last_modified(request, theme):
     try:
-        return Theme.objects.only('updated_at').get(slug=theme).updated_at
+        return Theme.objects.values_list('updated_at', flat=True).get(slug=theme)
     except Theme.DoesNotExist:
         return None
 

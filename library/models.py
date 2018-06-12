@@ -380,6 +380,7 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
                        .order_by()
                        .filter(story=OuterRef('pk'),
                                is_current=True)
+                       .values('pk')
                        )
 
     @staticmethod
@@ -388,6 +389,7 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
                        .filter(story__pk=OuterRef('pk'),
                                is_current=True,
                                file='')
+                       .values('pk')
                        )
 
     def get_absolute_url(self):
@@ -461,9 +463,10 @@ class Installment(models.Model):
     @property
     def file_as_html(self):
         if self.file:
-            with self.file.open(mode='r') as f:
+            # seems some storage providers only return bytes
+            with self.file.open(mode='rb') as f:
                 html = f.read()
-            return html
+            return html.decode('utf-8')
         else:
             return None
 
@@ -538,11 +541,11 @@ class Installment(models.Model):
 
     @staticmethod
     def prev_sq():
-        return Subquery(Installment._ord_seeker(False))
+        return Subquery(Installment._ord_seeker(False)[:1])
 
     @staticmethod
     def next_sq():
-        return Subquery(Installment._ord_seeker(True))
+        return Subquery(Installment._ord_seeker(True)[:1])
 
     def get_absolute_url(self):
         return reverse('installment', args=[str(self.story.slug), int(self.ordinal)])
@@ -580,7 +583,9 @@ class Saga(models.Model, AuthorsMixin, CodesMixin):
 
     @property
     def stories_ordered(self):
-        return self.stories.order_by('sagaentry__order')
+        return Story.display_objects \
+            .filter(sagaentry__saga=self) \
+            .order_by('sagaentry__order')
 
     @property
     def entry_count(self):

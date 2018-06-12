@@ -13,14 +13,22 @@ class Concat(Func):
     sep_template = ", '%s'"
 
     def __init__(self, expression, separator=',', distinct=False, **extra):
+        # sqlite is limited in this way
         assert separator == ',' or not distinct, \
             'Cannot specify custom separator with distinct clause.'
+
         super(Concat, self).__init__(
             expression,
-            separator=self.sep_template % separator if not distinct else '',
+            separator=self.sep_template % separator,
             distinct='DISTINCT ' if distinct else '',
             output_field=CharField(),
             **extra)
+
+    def as_sqlite(self, compiler, connection, **extra_context):
+        # sqlite expects only one argument when using DISTINCT
+        if self.extra['distinct']:
+            extra_context['separator'] = ''
+        return self.as_sql(compiler, connection, **extra_context)
 
     def as_postgresql(self, compiler, connection):
         return self.as_sql(compiler, connection, function='string_agg')
