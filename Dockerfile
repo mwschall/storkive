@@ -64,7 +64,7 @@ ENV UWSGI_VIRTUALENV=/venv \
 
 # Call collectstatic (customize the following line with the minimal environment variables
 # needed for manage.py to run):
-RUN DATABASE_HOST=none /venv/bin/python manage.py collectstatic --noinput
+RUN DATABASE_HOST=none /venv/bin/python manage.py collectstatic --no-input
 
 # Start uWSGI
 CMD ["/venv/bin/uwsgi", "--http-auto-chunked", "--http-keepalive"]

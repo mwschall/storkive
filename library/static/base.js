@@ -18,7 +18,7 @@
   var csrfToken = '';
   function getCsrfToken() {
     if (!csrfToken) {
-      csrfToken = jQuery("[name=csrfmiddlewaretoken]").val() || getCookie('csrftoken');
+      csrfToken = getCookie('csrftoken') || jQuery("[name=csrfmiddlewaretoken]").val();
     }
     return csrfToken;
   }

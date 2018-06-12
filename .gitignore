@@ -4,6 +4,7 @@
 
 *.sqlite3
 _*/
+/static/
 
 
 

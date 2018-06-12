@@ -2,9 +2,8 @@
 {% if user_lists %}
 <aside class="user categorization" data-story="{{ story.slug }}">
   {% if story_lists %}
-  <span class="primary star active"
-        style="color: {{ story_lists[0].color }};"
-        data-list="{{ story_lists[0] }}"></span>
+  <span class="primary toggle star active"
+        style="color: {{ story_lists[0].color }};"></span>
   {% else %}
   <span class="primary toggle star"></span>
   {% endif %}
