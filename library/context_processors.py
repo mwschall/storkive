@@ -21,9 +21,10 @@ def site_processor(request):
         {'name': 'codes', 'href': reverse('codes'), 'label': 'Codes'},
     ]
     if request.user.is_authenticated:
-        site_links.append(
-            {'name': 'lists', 'href': reverse('lists'), 'label': 'My Lists'}
-        )
+        site_links.extend([
+            {'name': 'lists', 'href': reverse('lists'), 'label': 'My Lists'},
+            {'name': 'profile', 'href': reverse('user_profile'), 'label': 'Profile'},
+        ])
     site_links = [sl for sl in site_links if sl['name'] != url_name]
 
     return {

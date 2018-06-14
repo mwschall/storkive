@@ -373,6 +373,23 @@ def list_toggle(request, coll, story):
         return HttpResponse(status=304)
 
 
+@require_http_methods(['GET', 'HEAD', 'POST'])
+@login_required
+def user_profile(request):
+    user = request.user
+
+    if request.POST:
+        theme = Theme.objects.get(slug=request.POST['theme'])
+        user.profile.theme = theme
+        user.profile.save()
+
+    context = {
+        'user': user,
+        'themes': Theme.objects.all(),
+    }
+    return render(request, 'profile.html', context)
+
+
 def theme_last_modified(request, theme):
     try:
         return Theme.objects.values_list('updated_at', flat=True).get(slug=theme)

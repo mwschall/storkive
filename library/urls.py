@@ -11,6 +11,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('profile/', views.user_profile, name='user_profile'),
     path('theme-<suuid:theme>.css', views.theme_css, name='theme'),
     path('WhatsNew.html', views.whats_new, name='whats_new'),
     path('WhatWasNew.html', views.what_was_new, name='what_was_new'),

@@ -1,0 +1,21 @@
+{% extends '_tmpl-standard.html' %}
+
+{% block content %}
+<nav class="logout"><a href="/logout">Logout</a></nav>
+<h3 class="title">{{ user.get_username() }}</h3>
+<form method="post" action="{{ url('user_profile') }}" class="settings">
+{{ csrf_input }}
+<section class="clearfix">
+<h4>Theme</h4>
+<select name="theme" class="themes">
+  {% for theme in themes %}
+  <option value="{{ theme.slug }}"{% if theme == user.profile.theme %} selected="selected"
+    {%- endif %}>{{ theme.name }}</option>
+  {% endfor %}
+</select>
+</section>
+<footer>
+<input type="submit" value="Save">
+</footer>
+</form>
+{% endblock %}

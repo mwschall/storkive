@@ -7,7 +7,7 @@
 
 {% block skeletoncontent %}
 
-<form method="post" action="{{ url('login') }}">
+<form method="post" action="{{ url('login') }}" class="login">
 {{ csrf_input }}
 {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>

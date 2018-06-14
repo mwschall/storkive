@@ -22,7 +22,7 @@ a abbr[title] {
   cursor: inherit !important;
 }
 
-article, form {
+article, .login {
   margin: 1rem auto;
   padding: 2rem 3rem;
   max-width: 36rem;
@@ -32,9 +32,13 @@ article, form {
   text-rendering: optimizeLegibility;
 }
 
-form {
+.login {
   max-width: 18rem;
   text-align: center;
+}
+
+.login table {
+  width: 100%;
 }
 
 @supports (hyphens: auto) {
@@ -399,4 +403,14 @@ div.item {
 div.item div {
   padding-left: 3rem;
   padding-right: 3rem;
+}
+
+nav.logout {
+  float: right;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
 }
