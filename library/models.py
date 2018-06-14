@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -22,7 +22,7 @@ class List(models.Model):
         unique=True,
     )
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name='lists',
         on_delete=models.CASCADE,
     )
@@ -739,7 +739,7 @@ class Theme(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name='profile',
         on_delete=models.CASCADE,
     )
