@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
@@ -128,9 +128,13 @@ LOGGING = {
         }
     },
     'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(name)-12s [%(lineno)4d] %(levelname)-8s %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S',
+        },
         'django.server': {
             '()': 'django.utils.log.ServerFormatter',
-            'format': '[%(server_time)s] %(message)s',
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
         }
     },
     'handlers': {
@@ -138,11 +142,13 @@ LOGGING = {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
+            'formatter': 'standard',
         },
         'console_debug_false': {
-            'level': 'ERROR',
+            'level': 'INFO',
             'filters': ['require_debug_false'],
             'class': 'logging.StreamHandler',
+            'formatter': 'standard',
         },
         'django.server': {
             'level': 'INFO',
@@ -151,10 +157,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        'django': {
-            'handlers': ['console', 'console_debug_false'],
-            'level': 'INFO',
-        },
         'django.server': {
             'handlers': ['django.server'],
             'level': 'INFO',

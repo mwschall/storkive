@@ -23,7 +23,11 @@ def index(request):
 @require_safe
 # @cache_page(ONE_DAY)
 def whats_new(request):
-    last_two = Story.objects.values_list('updated_on', flat=True).order_by('-updated_on').distinct()[:2]
+    last_two = Story.objects \
+        .exclude(updated_on=None) \
+        .values_list('updated_on', flat=True) \
+        .order_by('-updated_on') \
+        .distinct()[:2]
 
     def fetch_updates(date):
         new_insts_exist = Installment.objects \
