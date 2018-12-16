@@ -107,6 +107,7 @@ def what_was_new(request, year=None):
         .values('story__title',
                 'story__slug',
                 'story__slant_id',
+                'published_on',
                 'week',
                 'is_update',
                 'up_count',
@@ -118,6 +119,7 @@ def what_was_new(request, year=None):
             'slug': story['story__slug'],
             'slant_cls': story['story__slant_id'],
             'up_count': story['up_count'],
+            'published_on': story['published_on'],
         }
 
     def make_week(number, stories):
@@ -126,6 +128,9 @@ def what_was_new(request, year=None):
             for u, sl in groupby(stories, lambda s: s['is_update'])
         }
         week['number'] = number
+        lda = max(s['published_on'] for s in week['added'])
+        ldu = max(s['published_on'] for s in week['updated'])
+        week['date'] = max(lda, ldu)
         return week
 
     weeks = [make_week(n, s) for n, s in groupby(updates, lambda u: u['week'])]

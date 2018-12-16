@@ -4,7 +4,7 @@
 <h3 class="title">{{ page_title }}</h3>
 {% for week in weeks %}
 
-<section><h3 id="{{ week.number }}" class="dateline">Week {{ week.number }}</h3>
+<section><h3 id="{{ week.number }}" class="dateline">Week {{ week.number }} ({{ week.date|long_fmt }})</h3>
 <p>Added {% if week.added %}
 {% for story in week.added -%}
   {% include '_snippet-story-link.html' %}
