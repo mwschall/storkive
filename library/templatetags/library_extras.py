@@ -42,5 +42,8 @@ def story_count(num):
 @register.filter
 def up_count(story):
     count = story.up_count if hasattr(story, 'up_count') else story['up_count']
-    return '{:d} new chapter{}'.format(count, pluralize(count))
+    if count:
+        return '{:d} new chapter{}'.format(count, pluralize(count))
+    else:
+        return 'revised'
 
