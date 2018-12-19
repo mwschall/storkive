@@ -1,0 +1,47 @@
+version: '3.5'  # min version supporting network names
+services:
+  lb:
+    command: --docker --logLevel=INFO
+    restart: always
+    networks:
+      - web
+      - proxy
+    volumes:
+      - traefik-acme:/acme.json
+      - ./traefik.toml:/traefik.toml:ro
+    labels:
+      - "traefik.docker.network=storkive-proxy"
+      - "traefik.frontend.rule=${TRAEFIK_FRONTEND_RULE}"
+    ports:
+      - "80:80"
+      - "443:443"
+
+  db:
+    restart: always
+    networks:
+      - backend
+    volumes:
+      - /mnt/disks/pg/data:/var/lib/postgresql/data
+
+  web:
+    command: ["/venv/bin/uwsgi", "--http-socket", "0.0.0.0:8080", "--http-keepalive"]
+    restart: unless-stopped
+    networks:
+      - proxy
+      - backend
+    labels:
+      - "traefik.docker.network=storkive-proxy"
+      - "traefik.frontend.rule=${STORKIVE_FRONTEND_RULE}"
+
+networks:
+  web:
+    name: storkive-web
+  proxy:
+    name: storkive-proxy
+    internal: true
+  backend:
+    name: storkive-backend
+    internal: true
+
+volumes:
+  traefik-acme:

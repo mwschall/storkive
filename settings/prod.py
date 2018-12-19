@@ -4,6 +4,7 @@ import os
 cwd = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = cwd[:-9]  # chop off "settings/"
 
+
 # Security
 # https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
@@ -23,9 +24,10 @@ SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 X_FRAME_OPTIONS = 'DENY'
 
-# SECURITY WARNING: App Engine's security features ensure that it is safe to
-# have ALLOWED_HOSTS = ['*'] when the app is deployed. If you deploy a Django
-# app not on App Engine, make sure to set an appropriate host here.
+
+# SECURITY WARNING: Deployed via docker-compose.prod.yaml and configured with
+# a proper traefik.frontend.rule label, this can be left as-is in production.
+# If your deployment differs, make sure to set the appropriate host here.
 # See https://docs.djangoproject.com/en/dev/ref/settings/
 ALLOWED_HOSTS = ['*']
 
@@ -56,3 +58,4 @@ DATABASES = {
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', '/var/www/storkive/media/')

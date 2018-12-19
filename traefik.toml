@@ -1,0 +1,26 @@
+debug = false
+
+logLevel = "ERROR"
+defaultEntryPoints = ["https","http"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+    entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+  [entryPoints.traefik]
+  address = ":8080"
+    [entryPoints.traefik.whitelist]
+    sourceRange = ["10.0.0.0/8", "127.0.0.1", "::1"]
+    #[entryPoints.traefik.auth.basic]
+    #users = ["htpasswd"]
+
+[retry]
+attempts = 3
+
+[api]
+dashboard = true
+entrypoint = "traefik"

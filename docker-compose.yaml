@@ -1,0 +1,48 @@
+version: '3.5'
+services:
+  lb:
+    image: traefik
+    command: --docker
+    expose:
+      - 8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=traefik"
+      - "traefik.port=8080"
+
+  db:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_DB=storkive
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=false"
+
+  # To migrate:
+  # `docker-compose run --entrypoint /venv/bin/python web manage.py migrate`
+  web:
+    build: .
+    image: storkive:latest
+    stop_signal: SIGINT
+    stdin_open: true
+    tty: true
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PASSWORD=password
+      - MEDIA_ROOT=/var/www/storkive/media
+    depends_on:
+      - db
+    volumes:
+      - storkive-data:/var/www/storkive/media
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=storkive"
+      - "traefik.port=8080"
+
+volumes:
+  postgres-data:
+  storkive-data:

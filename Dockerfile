@@ -1,3 +1,4 @@
+# Based on:
 # https://www.caktusgroup.com/blog/2017/03/14/production-ready-dockerfile-your-python-django-app/
 
 FROM python:3.6-alpine
@@ -7,8 +8,12 @@ ENV APP_ENV=prod \
     APP_DIR=/code \
     DJANGO_PROJECT=storkive
 
-
 COPY requirements.txt /requirements.txt
+
+# Add mailcap for /etc/mime.types and tini for signal passing
+RUN apk add --no-cache \
+  mailcap \
+  tini
 
 # Install build deps, then run `pip install`, then remove unneeded build deps all in
 # a single step. Correct the path to your production requirements file, if needed.
@@ -44,22 +49,20 @@ WORKDIR $APP_DIR
 COPY . ./
 
 # uWSGI will listen on this port
-ENV LISTEN_PORT=8080
-EXPOSE $LISTEN_PORT
+EXPOSE 8080
 
 # Add any custom, static environment variables needed by Django or your settings file here:
 ENV DJANGO_SETTINGS_MODULE=settings
 
 # uWSGI configuration (customize as needed):
 ENV UWSGI_VIRTUALENV=/venv \
-    UWSGI_WSGI_FILE=$DJANGO_PROJECT/wsgi.py \
-    UWSGI_HTTP=:$LISTEN_PORT \
+    UWSGI_MODULE=$DJANGO_PROJECT.wsgi:application \
+    UWSGI_STATIC_MAP="/static=/code/static" \
     UWSGI_MASTER=1 \
     UWSGI_WORKERS=2 \
     UWSGI_THREADS=8 \
     UWSGI_UID=1000 \
     UWSGI_GID=2000 \
-    UWSGI_LAZY_APPS=1 \
     UWSGI_WSGI_ENV_BEHAVIOR=holy
 
 # Call collectstatic (customize the following line with the minimal environment variables
@@ -67,4 +70,5 @@ ENV UWSGI_VIRTUALENV=/venv \
 RUN DATABASE_HOST=none /venv/bin/python manage.py collectstatic --no-input
 
 # Start uWSGI
-CMD ["/venv/bin/uwsgi", "--http-auto-chunked", "--http-keepalive"]
+ENTRYPOINT ["/sbin/tini", "-v", "--"]
+CMD ["/venv/bin/uwsgi", "--http", ":8080"]

@@ -10,6 +10,8 @@ env
 *.log
 *.sqlite3
 _*/
+docker-compose.*
+traefik.toml
 
 # Souce Control
 .git
@@ -28,6 +30,7 @@ __pycache__
 *.pyd
 *.pyo
 .Python
+.python-version
 pip-log.txt
 pip-delete-this-directory.txt
 .tox
