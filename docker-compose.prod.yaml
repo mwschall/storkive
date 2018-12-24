@@ -21,7 +21,7 @@ services:
     networks:
       - backend
     volumes:
-      - /mnt/disks/pg/data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
   web:
     command: ["/venv/bin/uwsgi", "--http-socket", "0.0.0.0:8080", "--http-keepalive"]
@@ -44,4 +44,5 @@ networks:
     internal: true
 
 volumes:
-  traefik-acme:
+  traefik-acme: {}
+  postgres-data: {}
