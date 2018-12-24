@@ -24,3 +24,18 @@ attempts = 3
 [api]
 dashboard = true
 entrypoint = "traefik"
+
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+domain = "example.com"
+watch = true
+exposedByDefault = false
+
+[acme]
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+email = "your_address@example.com"
+storage = "acme.json"
+entryPoint = "https"
+onHostRule = true
+  [acme.httpChallenge]
+  entryPoint = "http"
