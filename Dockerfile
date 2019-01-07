@@ -1,22 +1,24 @@
 # Based on:
 # https://www.caktusgroup.com/blog/2017/03/14/production-ready-dockerfile-your-python-django-app/
 
-FROM python:3.6-alpine
+FROM python:3.7-alpine
 ENV PYTHONUNBUFFERED 1
 
 ENV APP_ENV=prod \
     APP_DIR=/code \
-    DJANGO_PROJECT=storkive
+    DJANGO_PROJECT=storkive \
+    # Semi-hack to get pipenv to use the desired directory.
+    VIRTUAL_ENV=/venv
 
-COPY requirements.txt /requirements.txt
+COPY Pipfile Pipfile.lock /
 
-# Add mailcap for /etc/mime.types and tini for signal passing
+# Add mailcap for /etc/mime.types and tini for signal passing.
 RUN apk add --no-cache \
   mailcap \
   tini
 
-# Install build deps, then run `pip install`, then remove unneeded build deps all in
-# a single step. Correct the path to your production requirements file, if needed.
+# Install build deps, then run `pipenv install`, then remove unneeded build deps all
+# in a single step. Correct the path to your production requirements file, if needed.
 RUN set -ex \
     && apk add --no-cache --virtual .build-deps \
             gcc \
@@ -29,9 +31,9 @@ RUN set -ex \
             linux-headers \
             pcre-dev \
             postgresql-dev \
-    && python3 -m venv /venv \
-    && /venv/bin/pip install -U pip \
-    && LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "/venv/bin/pip install --no-cache-dir -r /requirements.txt" \
+    && pip install -U pip pipenv virtualenv \
+    && virtualenv /venv \
+    && LIBRARY_PATH=/lib:/usr/lib /bin/sh -c "pipenv install -v --deploy --clear" \
     && runDeps="$( \
             scanelf --needed --nobanner --recursive /venv \
                     | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \

@@ -19,6 +19,7 @@ Web application for managing a collection of stories.
 * [Jinja2](http://jinja.pocoo.org/) - Template Engine
 * [Docker](https://www.docker.com/) & 
   [uWSGI](http://projects.unbit.it/uwsgi) - Deployment
+* [Pipenv](https://github.com/pypa/pipenv) - Dependency Management
 
 ## License
 

@@ -1,41 +1,20 @@
-# Cloud Stuff
-.aws
-.gcloud
+# Blacklist everything by default.
+*
 
-# Misc
-.dockerignore
-.DS_Store
-.env
-env
-*.log
-*.sqlite3
-_*/
-docker-compose.*
-traefik.toml
-
-# Souce Control
-.git
-.gitignore
+# Necessary Files
+!LICENSE
+!Dockerfile
+!Pipfile
+!Pipfile.lock
 
 # Django
-static
-settings
+!manage.py
+
+# Production Settings
 !settings/__init__.py
 !settings/common.py
-!settings/dev.py
 !settings/prod.py
 
-# Python
-__pycache__
-*.pyd
-*.pyo
-.Python
-.python-version
-pip-log.txt
-pip-delete-this-directory.txt
-.tox
-.coverage
-.coverage.*
-.cache
-coverage.xml
-*,cover
+# Modules
+!storkive/
+!library/
