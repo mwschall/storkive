@@ -10,11 +10,18 @@
 # Django
 !manage.py
 
-# Production Settings
-!settings/__init__.py
-!settings/common.py
-!settings/prod.py
+# Settings
+!settings/
 
 # Modules
 !storkive/
 !library/
+
+# Re-ignore misc crud.
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db
