@@ -24,6 +24,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   web:
+    # Either use `build: .` or reference an existing container with `image: ...`
     command: ["/venv/bin/uwsgi", "--http-socket", "0.0.0.0:8080", "--http-keepalive"]
     restart: unless-stopped
     networks:

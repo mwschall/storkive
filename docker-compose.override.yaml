@@ -11,6 +11,8 @@ services:
       - "5444:5432"
 
   web:
+    build: .
+    image: storkive:latest
     labels:
       - "traefik.frontend.rule=PathPrefix:/"
     ports:

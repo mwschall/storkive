@@ -25,9 +25,7 @@ services:
   # To migrate:
   # `docker-compose run --entrypoint /venv/bin/python web manage.py migrate`
   web:
-    build: .
-    image: storkive:latest
-    stop_signal: SIGINT
+    stop_signal: SIGINT  # uWSGI expects this
     stdin_open: true
     tty: true
     environment:
