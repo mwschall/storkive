@@ -84,7 +84,7 @@ def get_sort_name(name):
                   r'\1\2\3', name)
 
     # drop articles from the beginning
-    name = re.sub(r'^(?:the |a |an )', '', name)
+    name = re.sub(r'^(?:the |a (?!(?:to|is) )|an )', '', name)
 
     # transform numbers to words
     name = re.sub(r'^(\d+)(?:st|nd|rd|th)\b',
