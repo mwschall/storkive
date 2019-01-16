@@ -6,6 +6,7 @@ import pwd
 # certain keys we want to merge instead of copy
 merge_keys = ('INSTALLED_APPS', 'MIDDLEWARE')
 
+
 def deep_update(from_dict, to_dict):
     for key, value in from_dict.items():
         if key in to_dict and isinstance(to_dict[key], dict) and isinstance(value, dict):
@@ -16,6 +17,7 @@ def deep_update(from_dict, to_dict):
             to_dict[key] = tuple(to_dict[key]) + tuple(from_dict[key])
         else:
             to_dict[key] = value
+
 
 # this should be one of prod, qa, staging, dev. Default to dev for safety.
 env = os.getenv('APP_ENV', 'dev')
