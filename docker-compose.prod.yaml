@@ -1,15 +1,21 @@
 version: '3.5'  # min version supporting network names
 services:
   lb:
-    command: --docker --logLevel=INFO
+    command: [
+      "--logLevel=INFO",
+      "--docker",
+      "--docker.network=storkive-proxy",
+      "--constraints=tag==${TRAEFIK_NETWORK_TAG}",
+    ]
     restart: always
     networks:
       - web
       - proxy
     volumes:
-      - traefik-acme:/acme.json
-      - ./traefik.toml:/traefik.toml:ro
+      - traefik-acme:/acme  # mapping directly to acme.json can cause permission issues
+      - $PWD/traefik.toml:/traefik.toml:ro
     labels:
+      - "traefik.tags=${TRAEFIK_NETWORK_TAG}"
       - "traefik.docker.network=storkive-proxy"
       - "traefik.frontend.rule=${TRAEFIK_FRONTEND_RULE}"
     ports:
@@ -20,17 +26,19 @@ services:
     restart: always
     networks:
       - backend
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+    # Define an external bind mount for /var/lib/postgresql/data if desired.
 
   web:
     # Either use `build: .` or reference an existing container with `image: ...`
     command: ["/venv/bin/uwsgi", "--http-socket", "0.0.0.0:8080", "--http-keepalive"]
     restart: unless-stopped
     networks:
+      # Enable for egress to external services.
+      #- web
       - proxy
       - backend
     labels:
+      - "traefik.tags=${TRAEFIK_NETWORK_TAG}"
       - "traefik.docker.network=storkive-proxy"
       - "traefik.frontend.rule=${STORKIVE_FRONTEND_RULE}"
 
@@ -46,4 +54,3 @@ networks:
 
 volumes:
   traefik-acme: {}
-  postgres-data: {}

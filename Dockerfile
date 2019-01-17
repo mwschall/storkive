@@ -12,8 +12,8 @@ RUN apk add --no-cache --virtual .build-deps \
         libffi-dev \
         libxml2-dev \
         libxslt-dev \
-        musl-dev \
         linux-headers \
+        musl-dev \
         pcre-dev \
         postgresql-dev
 

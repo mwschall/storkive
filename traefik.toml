@@ -1,7 +1,4 @@
-debug = false
-
-logLevel = "ERROR"
-defaultEntryPoints = ["https","http"]
+defaultEntryPoints = ["https"]
 
 [entryPoints]
   [entryPoints.http]
@@ -13,17 +10,16 @@ defaultEntryPoints = ["https","http"]
     [entryPoints.https.tls]
   [entryPoints.traefik]
   address = ":8080"
-    [entryPoints.traefik.whitelist]
-    sourceRange = ["10.0.0.0/8", "127.0.0.1", "::1"]
-    #[entryPoints.traefik.auth.basic]
-    #users = ["htpasswd"]
+    # Restrict access as desired.
+    # https://docs.traefik.io/configuration/entrypoints/#authentication
+    # https://docs.traefik.io/configuration/entrypoints/#white-listing
 
 [retry]
 attempts = 3
 
 [api]
 dashboard = true
-entrypoint = "traefik"
+entryPoint = "traefik"
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"
@@ -34,7 +30,7 @@ exposedByDefault = false
 [acme]
 caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 email = "your_address@example.com"
-storage = "acme.json"
+storage = "/acme/certs.json"
 entryPoint = "https"
 onHostRule = true
   [acme.httpChallenge]
