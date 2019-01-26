@@ -1,0 +1,6 @@
+LICENSE
+README.md
+Pipfile
+Pipfile.lock
+recursive-include library/jinja2 *
+recursive-include library/static *
