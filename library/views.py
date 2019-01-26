@@ -17,7 +17,23 @@ ONE_DAY = 24 * 60 * 60
 
 @require_safe
 def index(request):
-    return render(request, 'index.html')
+    valid_insts = Installment.objects \
+        .order_by() \
+        .filter(story_id=OuterRef('pk'),
+                is_current=True) \
+        .exclude(file='') \
+        .values('pk')
+
+    valid_stories = Story.objects \
+        .annotate(valid_count=SQCount(valid_insts)) \
+        .exclude(valid_count=0) \
+        .exclude(removed_at__isnull=False) \
+        .count()
+
+    context = {
+        'total_stories': valid_stories,
+    }
+    return render(request, 'index.html', context)
 
 
 @require_safe

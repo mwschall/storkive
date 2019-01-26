@@ -2,11 +2,20 @@
 
 {% block skeletoncontent %}
 <article id="storkive">
-<h3 class="title">Skorkive Digital Library</h3>
+<h3 class="title">Storkive Digital Library</h3>
 <section>
   {% for link in site_links %}
   <h3><a href="{{ link.href }}">{{ link.label }}</a></h3>
   {% endfor %}
 </section>
 </article>
+{% endblock %}
+
+{% block skeletonpostcontent %}
+<footer>
+  <p>
+    Serving {{ total_stories|intcomma }} stories
+    — Running <a href="{{ storkive_url }}">Storkive</a> {{ storkive_version }}
+  </p>
+</footer>
 {% endblock %}
