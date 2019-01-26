@@ -24,4 +24,4 @@ Web application for managing a collection of stories.
 ## License
 
 [ISC](https://opensource.org/licenses/ISC)
-Copyright © 2018 Matthew Schallberger
+Copyright © 2019 Matthew Schallberger
