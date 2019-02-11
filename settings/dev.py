@@ -1,8 +1,8 @@
 import os
 
-# cwd is settings. determine project path
 from django.core.files.storage import FileSystemStorage
 
+# cwd is settings. determine project path
 cwd = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = cwd[:-9]  # chop off "settings/"
 

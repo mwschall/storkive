@@ -59,6 +59,7 @@ def get_author_slug(name):
     name = re.sub(r'[,.?!#$‘"“”(){}[\]]', '', name)
     # name = re.sub(r'[*&\'’]', '-', name)
     name = re.sub(r'[^-_A-Za-z0-9]', '-', name)
+    name = name.strip('-')
     return name
 
 
