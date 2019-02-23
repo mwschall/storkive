@@ -57,7 +57,7 @@ class List(models.Model):
         unique_together = ['user', 'name']
 
     def clean_fields(self, exclude=None):
-        super(List, self).clean_fields(exclude)
+        super().clean_fields(exclude)
         if 'color' not in exclude:
             if self.color and not is_css_color(self.color):
                 raise ValidationError({'color': ['Not a valid css color.']})
@@ -121,7 +121,7 @@ class Author(models.Model):
         return reverse('author', args=[str(self.slug)])
 
     def _perform_unique_checks(self, unique_checks):
-        errors = super(Author, self)._perform_unique_checks(unique_checks)
+        errors = super()._perform_unique_checks(unique_checks)
         try:
             slug = self.slug or get_author_slug(self.name)
             conflict = Author.objects \
@@ -141,7 +141,7 @@ class Author(models.Model):
         if not self.slug:
             self.slug = get_author_slug(self.name)
         self.full_clean()
-        super(Author, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Code(models.Model):
@@ -401,7 +401,7 @@ class Story(models.Model, AuthorsMixin, CodesMixin):
         self.full_clean()
         if not self.updated_on:
             self.updated_on = self.published_on
-        super(Story, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class Installment(models.Model):
@@ -552,7 +552,7 @@ class Installment(models.Model):
 
     def save(self, *args, **kwargs):
         # TODO: fixup is_current
-        super(Installment, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class SagaDisplayManager(models.Manager):
@@ -638,7 +638,7 @@ class Saga(models.Model, AuthorsMixin, CodesMixin):
         # TODO: is this safe? no, it's not...
         while True:
             try:
-                super(Saga, self).save(*args, **kwargs)
+                super().save(*args, **kwargs)
                 break
             except IntegrityError:
                 self.slug = ShortUUIDField.gen()
@@ -734,7 +734,7 @@ class Theme(models.Model):
                 qs = qs.exclude(pk=self.pk)
             qs.update(active=False)
 
-        super(Theme, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class UserProfile(models.Model):

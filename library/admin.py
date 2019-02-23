@@ -59,7 +59,7 @@ class InstallmentAdminForm(forms.ModelForm):
             if not kwargs.get('initial'):
                 kwargs['initial'] = {}
             kwargs['initial'].update({'file_as_html': instance.file_as_html})
-        super(InstallmentAdminForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = Installment
@@ -82,13 +82,13 @@ class InstallmentAdmin(admin.ModelAdmin):
     autocomplete_fields = ['story', 'authors']
 
     def get_queryset(self, request):
-        return super(InstallmentAdmin, self).get_queryset(request) \
+        return super().get_queryset(request) \
             .select_related('story')
 
     def save_model(self, request, obj, form, change):
         obj.file_as_html = form.cleaned_data['file_as_html']
         # raise NotImplementedError
-        super(InstallmentAdmin, self).save_model(request, obj, form, change)
+        super().save_model(request, obj, form, change)
 
 
 class InstallmentInline(admin.TabularInline):
@@ -130,7 +130,7 @@ class ListAdmin(admin.ModelAdmin):
     ordering = ('user__username', '-priority', 'name')
 
     def get_queryset(self, request):
-        return super(ListAdmin, self).get_queryset(request) \
+        return super().get_queryset(request) \
             .annotate(entry_count=Count('entries'))
 
     fields = (

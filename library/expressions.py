@@ -17,7 +17,7 @@ class Concat(Func):
         assert separator == ',' or not distinct, \
             'Cannot specify custom separator with distinct clause.'
 
-        super(Concat, self).__init__(
+        super().__init__(
             expression,
             separator=self.sep_template % separator,
             distinct='DISTINCT ' if distinct else '',

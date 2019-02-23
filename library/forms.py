@@ -10,7 +10,7 @@ class NormalizingCharField(forms.CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
-        value = super(NormalizingCharField, self).to_python(value)
+        value = super().to_python(value)
         return clean_paragraph(value, multiline=self.multiline)
 
 
@@ -20,5 +20,5 @@ class TextField(forms.CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
-        value = super(TextField, self).to_python(value)
+        value = super().to_python(value)
         return fix_line_endings(value)

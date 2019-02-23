@@ -5,7 +5,7 @@ from django.db.models.functions import Lower
 class OrderedLowerManager(models.Manager):
 
     def __init__(self, sort_field='name'):
-        super(OrderedLowerManager, self).__init__()
+        super().__init__()
         self._sort_field = sort_field
 
     def get_queryset(self):
