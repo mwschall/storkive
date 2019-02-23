@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.humanize.templatetags.humanize import intcomma
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.urls import reverse
@@ -12,6 +13,7 @@ def environment(**options):
     env = Environment(**options)
     env.globals.update({
         'static': staticfiles_storage.url,
+        'storkive_name': settings.STORKIVE_NAME,
         'storkive_url': storkive_url,
         'storkive_version': storkive_version,
         'url': reverse,

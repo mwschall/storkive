@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{ page_title if page_title else "Storkive Digital Library" }}</title>
+  <title>{{ page_title if page_title else storkive_name }}</title>
   <link rel="stylesheet" href="{{ static('base.css') }}" />
   {% if current_theme %}
   <link rel="stylesheet" href="{{ url('theme', args=[current_theme.slug]) }}" />

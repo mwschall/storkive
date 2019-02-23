@@ -2,7 +2,7 @@
 
 {% block skeletoncontent %}
 <article id="storkive">
-<h3 class="title">Storkive Digital Library</h3>
+<h3 class="title">{{ storkive_name }}</h3>
 <section>
   {% for link in site_links %}
   <h3><a href="{{ link.href }}">{{ link.label }}</a></h3>
