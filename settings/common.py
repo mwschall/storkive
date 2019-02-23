@@ -87,6 +87,29 @@ TEMPLATES = [
 WSGI_APPLICATION = 'storkive.wsgi.application'
 
 
+# Database
+# https://docs.djangoproject.com/en/dev/ref/settings/#databases
+
+if any(k.startswith('DATABASE_') for k in os.environ.keys()):
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DATABASE_NAME', 'storkive'),
+            'USER': os.getenv('DATABASE_USER', 'postgres'),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),  # This should be the bare minimum.
+            'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+            'PORT': os.getenv('DATABASE_PORT', '5432'),
+        },
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        },
+    }
+
+
 # Authentication
 
 LOGIN_URL = 'login'
