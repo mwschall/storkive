@@ -1,6 +1,6 @@
 from django.utils.version import get_version
 
-VERSION = (0, 1, 0, 'alpha', 1)
+VERSION = (0, 1, 0, 'beta', 1)
 
 __title__ = 'Storkive'
 __version__ = get_version(VERSION)
