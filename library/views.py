@@ -13,6 +13,7 @@ from library.expressions import SQCount, ChillSubquery
 from library.models import Author, Installment, List, Story, Code, Saga, Theme
 
 ONE_DAY = 24 * 60 * 60
+TIME_BEGINS = dt.date(1, 1, 1)
 
 
 @require_safe
@@ -144,8 +145,10 @@ def what_was_new(request, year=None):
             for u, sl in groupby(stories, lambda s: s['is_update'])
         }
         week['number'] = number
-        lda = max(s['published_on'] for s in week['added'])
-        ldu = max(s['published_on'] for s in week['updated'])
+        lda = max(s['published_on'] for s in week['added']) \
+            if 'added' in week else TIME_BEGINS
+        ldu = max(s['published_on'] for s in week['updated']) \
+            if 'updated' in week else TIME_BEGINS
         week['date'] = max(lda, ldu)
         return week
 
