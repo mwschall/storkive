@@ -3,7 +3,6 @@ from django.urls import reverse
 from library.models import Slant, Theme
 
 
-# noinspection PyUnusedLocal
 def site_processor(request):
     # figure out which theme to use
     try:
