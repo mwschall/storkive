@@ -6,11 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = ">=2.1.7"
+django = ">=2.2"
 django-admin-sortable2 = "*"
 django-debug-toolbar = "*"
 django-storages = "*"
-jinja2 = "*"
+jinja2 = ">=2.10.1"
 num2words = "*"
 psycopg2-binary = "*"
 shortuuid = "*"
