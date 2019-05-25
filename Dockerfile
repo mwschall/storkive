@@ -71,12 +71,14 @@ EXPOSE 8080
 ENV DJANGO_SETTINGS_MODULE=settings
 
 # uWSGI configuration (customize as needed):
+# https://github.com/unbit/uwsgi/issues/1792
+# https://www.reddit.com/r/Python/comments/4s40ge/understanding_uwsgi_threads_processes_and_gil/d56f3oo
 ENV UWSGI_VIRTUALENV=/venv \
     UWSGI_MODULE=$DJANGO_PROJECT.wsgi:application \
     UWSGI_STATIC_MAP="/static=/code/static" \
     UWSGI_MASTER=1 \
-    UWSGI_WORKERS=2 \
-    UWSGI_THREADS=8 \
+    UWSGI_WORKERS=4 \
+    UWSGI_HARAKIRI=20 \
     UWSGI_UID=1000 \
     UWSGI_GID=2000 \
     UWSGI_WSGI_ENV_BEHAVIOR=holy
