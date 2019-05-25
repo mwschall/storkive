@@ -2,8 +2,9 @@
 # https://www.caktusgroup.com/blog/2017/03/14/production-ready-dockerfile-your-python-django-app/
 
 ARG USE_PYTHON=3.7
+ARG USE_ALPINE=3.9
 
-FROM python:${USE_PYTHON}-alpine as builder
+FROM python:${USE_PYTHON}-alpine${USE_ALPINE} as builder
 
 RUN apk add --no-cache --virtual .build-deps \
         gcc \
@@ -19,6 +20,7 @@ RUN apk add --no-cache --virtual .build-deps \
 
 RUN pip install -U pip pipenv virtualenv
 
+# Pre-create a virtualenv to rein in pipenv.
 RUN virtualenv /venv
 
 COPY Pipfile Pipfile.lock /
@@ -38,7 +40,7 @@ RUN scanelf --needed --nobanner --recursive /venv \
 
 
 
-FROM python:${USE_PYTHON}-alpine
+FROM python:${USE_PYTHON}-alpine${USE_ALPINE}
 ENV PYTHONUNBUFFERED 1
 
 ENV APP_ENV=prod \
@@ -47,22 +49,22 @@ ENV APP_ENV=prod \
 
 COPY --from=builder /venv /venv/
 
-# Add mailcap for /etc/mime.types and tini for signal passing.
+# Use copied list because scanning here misses some dependencies.
 RUN apk add --no-cache --virtual .storkive-deps \
+  $(cat /venv/deps)
+
+# Add mailcap for /etc/mime.types and tini for signal passing.
+RUN apk add --no-cache --virtual .app-deps \
   mailcap \
   tini
 
-# Scanning the copied /venv directory misses some dependencies.
-RUN apk add --no-cache --virtual .python-rundeps \
-  $(cat /venv/deps)
-
-
+# Copy our files.
 RUN mkdir -p $APP_DIR
 WORKDIR $APP_DIR
 
 COPY . ./
 
-# uWSGI will listen on this port
+# Port we will listen on.
 EXPOSE 8080
 
 # Add any custom, static environment variables here:
