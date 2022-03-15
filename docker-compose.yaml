@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   lb:
-    image: traefik
+    image: traefik:latest
     command: --docker
     expose:
       - 8080
@@ -13,7 +13,7 @@ services:
       - "traefik.port=8080"
 
   db:
-    image: postgres:9.6-alpine
+    image: postgres:alpine
     environment:
       - POSTGRES_DB=storkive
       - POSTGRES_PASSWORD=password

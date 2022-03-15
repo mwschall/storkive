@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "Storkive"
+version = "0.1.0-rc1"
+description = "Web app for managing story collections."
+authors = ["Matthew Schallberger <mwschall@gmail.com>"]
+license = "ISC"
+
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8,<3.10"
+Django = "^3.2.3"
+django-admin-sortable2 = "^1.0"
+django-debug-toolbar = "^3.2.1"
+django-storages = {extras = ["google"], version = "^1.11.1"}
+Jinja2 = "^3.0.1"
+num2words = "^0.5.10"
+psycopg2-binary = "^2.8.6"
+shortuuid = "^1.0.1"
+uWSGI = "^2.0.19"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

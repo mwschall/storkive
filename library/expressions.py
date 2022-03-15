@@ -39,12 +39,9 @@ class SQCount(Subquery):
     template = "(SELECT count(*) FROM (%(subquery)s) _count)"
     output_field = models.IntegerField()
 
-    def get_source_expressions(self):
-        return []
-
 
 # noinspection PyAbstractClass
 class ChillSubquery(Subquery):
     # chill the F out and don't explode the GROUP BY clause
-    def get_source_expressions(self):
-        return []
+    # TODO: is this still necessary?
+    pass

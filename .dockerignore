@@ -4,8 +4,8 @@
 # Necessary Files
 !LICENSE
 !Dockerfile
-!Pipfile
-!Pipfile.lock
+!poetry.lock
+!pyproject.toml
 !*.build
 
 # Django

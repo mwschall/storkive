@@ -90,6 +90,8 @@ WSGI_APPLICATION = 'storkive.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 if any(k.startswith('DATABASE_') for k in os.environ.keys()):
     DATABASES = {
         'default': {
