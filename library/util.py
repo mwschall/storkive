@@ -120,7 +120,7 @@ re_squote = re.compile(r'(?:(^|\s)|(.))(["\'])(.|$)', re.M)
 def _quote_fancier(m):
     # TODO: test this, please
     # NOTE: account for: “Down the center path—“
-    style = ('‘', '’') if m.group(3) is '\'' else ('“', '”')
+    style = ('‘', '’') if m.group(3) == '\'' else ('“', '”')
     new_quote = style[0] if m.group(1) is not None else style[1]
     repl = (m.group(1), m.group(2), new_quote, m.group(4))
     return ''.join([s for s in repl if s])

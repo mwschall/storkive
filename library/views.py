@@ -86,7 +86,11 @@ def whats_new(request):
 def what_was_new(request, year=None):
     this_year = dt.date.today().year
     if not year:
-        year = this_year
+        year = Installment.objects \
+            .annotate(year=ExtractYear('published_on')) \
+            .order_by('-year') \
+            .values_list('year', flat=True) \
+            .first()
 
     prev_year = Installment.objects \
         .annotate(year=ExtractYear('published_on')) \

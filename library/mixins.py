@@ -19,7 +19,7 @@ class AuthorsMixin(object):
     def author_dicts(self, value):
         values = value.split(DEFAULT_AUTHOR_SEP)
         if self._author_sort:
-            values = sorted(set(values), key=lambda n: n.lower())
+            values = sorted(set(values), key=lambda n: n.casefold())
         self._author_dicts = [
             {'name': name, 'slug': get_author_slug(name)}
             for name in values
