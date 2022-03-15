@@ -25,9 +25,6 @@ services:
   # To migrate:
   # `docker-compose run --entrypoint /venv/bin/python web manage.py migrate`
   web:
-    stop_signal: SIGINT  # uWSGI expects this
-    stdin_open: true
-    tty: true
     environment:
       - SQL_HOST=db
       - SQL_PASSWORD=password

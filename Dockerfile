@@ -1,92 +1,149 @@
-# Based on:
-# https://www.caktusgroup.com/blog/2017/03/14/production-ready-dockerfile-your-python-django-app/
+#########################################
+# Base Image                            #
+#########################################
 
-ARG USE_PYTHON=3.7
-ARG USE_ALPINE=3.9
+ARG USE_PYTHON=3.9
+ARG USE_IMAGE=alpine
 
-FROM python:${USE_PYTHON}-alpine${USE_ALPINE} as builder
+FROM python:${USE_PYTHON}-${USE_IMAGE} as base-image
 
-RUN apk add --no-cache --virtual .build-deps \
+    # python
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PYTHONUNBUFFERED=1 \
+    # prevents python from creating .pyc files
+    PYTHONDONTWRITEBYTECODE=1 \
+    \
+    # paths
+    # this is where our requirements + virtual environment will live
+    APP_HOME="/code" \
+    APP_VENV="/opt/.virtualenvs/app"
+
+    # add gcloud/gsutil and our venv to the path
+ENV PATH=$CLOUD_SDK_HOME/bin:$APP_VENV/bin:$PATH \
+    # poetry really likes to create its own venv (for now)
+    APP_POETRY="$APP_HOME/.venv"
+
+# new hotness
+RUN set -x && \
+    apk -U upgrade && \
+    pip install --no-cache-dir -U pip
+
+
+
+#########################################
+# Builder Image                         #
+#########################################
+
+FROM base-image as builder-image
+
+    # pip
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=100 \
+    \
+    # poetry
+    POETRY_HOME="/opt/poetry" \
+    # make poetry create the virtual environment in the project's root
+    # it gets named `.venv`
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    # forgo interactive questions
+    POETRY_NO_INTERACTION=1
+
+    # add poetry to the path
+ENV PATH=$POETRY_HOME/bin:$PATH
+
+RUN set -x && \
+    # install necessary development packages
+    apk add --no-cache --virtual .build-deps \
         gcc \
-        make \
         libc-dev \
         libffi-dev \
         libxml2-dev \
         libxslt-dev \
         linux-headers \
+        make \
         musl-dev \
         pcre-dev \
-        postgresql-dev
+        postgresql-dev && \
+    # install poetry; respects $POETRY_HOME
+    wget -qO- https://install.python-poetry.org | python -
 
-RUN pip install -U pip pipenv virtualenv
+# copy project requirement files here to ensure they will be cached
+WORKDIR $APP_HOME
+COPY poetry.lock pyproject.toml ./
 
-# Pre-create a virtualenv to rein in pipenv.
-RUN virtualenv /venv
-
-COPY Pipfile Pipfile.lock /
-
-RUN LIBRARY_PATH=/lib:/usr/lib \
-    VIRTUAL_ENV=/venv \
-    PIPENV_VERBOSITY=-1 \
-    /bin/sh -c "pipenv sync --clear"
-
-# Collect and save list of necessary run dependencies.
-RUN scanelf --needed --nobanner --recursive /venv \
+RUN set -x && \
+    # install app deps
+    LIBRARY_PATH=/lib:/usr/lib poetry install --no-dev --no-ansi && \
+    scanelf --needed --nobanner --recursive $APP_POETRY \
             | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
             | sort -u \
             | xargs -r apk info --installed \
             | sort -u \
-    > /venv/deps
+    > $APP_POETRY/deps
+
+
+#########################################
+# Common Image                          #
+#########################################
+
+FROM base-image as common-image
+
+# copy in our built venv
+COPY --from=builder-image $APP_POETRY $APP_VENV
+
+RUN set -x && \
+    # use copied list because scanning here misses some dependencies
+    apk add --no-cache --virtual .app-deps \
+        $(cat $APP_VENV/deps) && \
+    # add mailcap for /etc/mime.types file
+    apk add --no-cache --virtual .storkive-deps \
+        mailcap \
+        tini
+
+# make shell life easier
+ENV PYTHONPATH=$APP_HOME \
+    DJANGO_SETTINGS_MODULE=settings \
+    DATABASE=${DATABASE:-postgres}
+
+# multi-function entry point
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 
 
-FROM python:${USE_PYTHON}-alpine${USE_ALPINE}
-ENV PYTHONUNBUFFERED 1
+#########################################
+# Production Image                      #
+#########################################
 
-ENV APP_ENV=prod \
-    APP_DIR=/code \
-    DJANGO_PROJECT=storkive
+FROM common-image as production
+ENV APP_ENV=prod
 
-COPY --from=builder /venv /venv/
+# copy our files
+WORKDIR $APP_HOME
+COPY . .
 
-# Use copied list because scanning here misses some dependencies.
-RUN apk add --no-cache --virtual .storkive-deps \
-  $(cat /venv/deps)
-
-# Add mailcap for /etc/mime.types and tini for signal passing.
-RUN apk add --no-cache --virtual .app-deps \
-  mailcap \
-  tini
-
-# Copy our files.
-RUN mkdir -p $APP_DIR
-WORKDIR $APP_DIR
-
-COPY . ./
-
-# Port we will listen on.
-EXPOSE 8080
-
-# Add any custom, static environment variables here:
-ENV DJANGO_SETTINGS_MODULE=settings
+    # create a non-root system user to run as
+RUN addgroup -S -g 1000 storkive && \
+    adduser -S -u 1000 -G storkive -s /bin/false storkive
 
 # uWSGI configuration (customize as needed):
 # https://github.com/unbit/uwsgi/issues/1792
 # https://www.reddit.com/r/Python/comments/4s40ge/understanding_uwsgi_threads_processes_and_gil/d56f3oo
-ENV UWSGI_VIRTUALENV=/venv \
-    UWSGI_MODULE=$DJANGO_PROJECT.wsgi:application \
-    UWSGI_STATIC_MAP="/static=/code/static" \
+ENV UWSGI_VIRTUALENV=$APP_VENV \
+    UWSGI_MODULE=storkive.wsgi:application \
+    UWSGI_STATIC_MAP="/static=$APP_HOME/static" \
     UWSGI_MASTER=1 \
     UWSGI_WORKERS=4 \
     UWSGI_HARAKIRI=20 \
-    UWSGI_UID=1000 \
-    UWSGI_GID=2000 \
+    UWSGI_UID=storkive \
+    UWSGI_GID=storkive \
     UWSGI_WSGI_ENV_BEHAVIOR=holy
 
-# Call collectstatic (customize the following line with the minimal environment
-# variables needed for manage.py to run):
-RUN DATABASE_HOST=none /venv/bin/python manage.py collectstatic --no-input
-
+# le port
+EXPOSE 8080
+# uWSGI expects this
+STOPSIGNAL SIGINT
 # Start uWSGI
-ENTRYPOINT ["/sbin/tini", "-v", "--"]
-CMD ["/venv/bin/uwsgi", "--http", ":8080"]
+CMD ["uwsgi", "--http-socket", "0.0.0.0:8080", "--http-keepalive"]

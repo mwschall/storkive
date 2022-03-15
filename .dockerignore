@@ -4,6 +4,7 @@
 # Necessary Files
 !LICENSE
 !Dockerfile
+!docker-entrypoint.sh
 !poetry.lock
 !pyproject.toml
 !*.build
