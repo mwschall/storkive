@@ -1,8 +1,12 @@
+import logging
 import os
+from pathlib import Path
+
+
+logger = logging.getLogger(__name__)
 
 # cwd is settings. determine project path
-cwd = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = cwd[:-9]  # chop off "settings/"
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 
 # Security
@@ -10,12 +14,14 @@ BASE_DIR = cwd[:-9]  # chop off "settings/"
 
 try:
     SECRET_KEY = os.environ['SECRET_KEY']
+    with open(SECRET_KEY, 'r') as skf:
+        SECRET_KEY = skf.readline().strip()
 except KeyError:
-    import random
-    SECRET_KEY = ''.join([
-        random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
-        for i in range(50)
-    ])
+    logger.warning('Using a random SECRET_KEY. This will not persist across restarts or between workers.')
+    from django.core.management.utils import get_random_secret_key
+    SECRET_KEY = 'django-temporary-' + get_random_secret_key()
+except FileNotFoundError:
+    pass
 
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True

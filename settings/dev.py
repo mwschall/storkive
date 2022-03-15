@@ -1,16 +1,20 @@
 import os
+from pathlib import Path
 
 from django.core.files.storage import FileSystemStorage
 
 # cwd is settings. determine project path
-cwd = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = cwd[:-9]  # chop off "settings/"
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'rep^#%+j%0-ce8fp6j#$tqq9%ztn@x$=w^_x4rtbg2=&+ssijd'
+SECRET_KEY = 'django-insecure-rep^#%+j%0-ce8fp6j#$tqq9%ztn@x$=w^_x4rtbg2=&+ssijd'
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATE_DEBUG = True
+
+# SECURITY WARNING: this is super extra not-safe
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,4 +54,5 @@ class OverwritingFSStorage(FileSystemStorage):
 
 
 DEFAULT_FILE_STORAGE = 'settings.dev.OverwritingFSStorage'
-MEDIA_ROOT = os.path.join(BASE_DIR, '_data')
+MEDIA_ROOT = BASE_DIR / '_data'
+STATIC_ROOT = BASE_DIR / 'static'

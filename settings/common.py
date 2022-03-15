@@ -10,19 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/dev/ref/settings/
 """
 
+import re
 import os
+from pathlib import Path
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Build paths inside the project like this: BASE_DIR / ...
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = int(os.environ.get('DEBUG', default=0))
+
+
+# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/
+# 'DJANGO_ALLOWED_HOSTS' should be a single string of hosts with a space between each.
+# For example: 'DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]'
+ALLOWED_HOSTS = re.split(r'\s+', os.environ.get('DJANGO_ALLOWED_HOSTS', default=''))
 
 INTERNAL_IPS = [
+    'localhost',
     '127.0.0.1',
+    '[::1]'
 ]
 
 
@@ -92,22 +103,25 @@ WSGI_APPLICATION = 'storkive.wsgi.application'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-if any(k.startswith('DATABASE_') for k in os.environ.keys()):
+if any(k.startswith('SQL_') for k in os.environ.keys()):
     DATABASES = {
         'default': {
-            'ENGINE': os.getenv('DATABASE_ENGINE', 'django.db.backends.postgresql'),
-            'NAME': os.getenv('DATABASE_NAME', 'storkive'),
-            'USER': os.getenv('DATABASE_USER', 'postgres'),
-            'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),  # This should be the bare minimum.
-            'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-            'PORT': os.getenv('DATABASE_PORT', '5432'),
+            'ENGINE':   os.getenv('SQL_ENGINE',     'django.db.backends.postgresql'),
+            'NAME':     os.getenv('SQL_NAME',       'storkive'),
+            'USER':     os.getenv('SQL_USERNAME',   'postgres'),
+            'PASSWORD': os.getenv('SQL_PASSWORD',   ''),  # This should be specified at the bare minimum.
+            'HOST':     os.getenv('SQL_HOST',       '127.0.0.1'),
+            'PORT':     os.getenv('SQL_PORT',       '5432'),
+            'OPTIONS': {
+                'sslmode': os.getenv('SQL_SSLMODE', 'prefer'),
+            },
         },
     }
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'NAME': BASE_DIR / 'db.sqlite3',
         },
     }
 
@@ -214,6 +228,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'static'
 
 
 # Customization

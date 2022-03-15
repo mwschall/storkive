@@ -29,8 +29,8 @@ services:
     stdin_open: true
     tty: true
     environment:
-      - DATABASE_HOST=db
-      - DATABASE_PASSWORD=password
+      - SQL_HOST=db
+      - SQL_PASSWORD=password
       - MEDIA_ROOT=/var/www/storkive/media
     depends_on:
       - db
