@@ -6,6 +6,7 @@
 !Dockerfile
 !Pipfile
 !Pipfile.lock
+!*.build
 
 # Django
 !manage.py
@@ -17,7 +18,8 @@
 !storkive/
 !library/
 
-# Re-ignore misc crud.
+# Re-ignore misc sensitive stuff / crud.
+**/*credentials
 **/__pycache__/
 **/*.py[cod]
 **/*$py.class

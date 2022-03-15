@@ -1,18 +1,34 @@
 ###
+# OS Files
+###
+
+.DS_Store
+Thumbs.db
+
+
+
+###
 # Dev Files
 ###
 
+*.build
+*.save
 *.sqlite3
+*credentials
 _*/
 /static/
 
+# allow encrypted files
+!*.enc
+
 
 
 ###
-# JetBrains/IDEA
+# IDEs
 ###
 
 .idea/
+.vscode/
 
 
 
@@ -73,6 +89,7 @@ local_settings.py
 
 # dotenv
 .env
+.envrc
 
 # virtualenv
 .venv/
