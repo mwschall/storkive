@@ -38,7 +38,7 @@ unicode_backport = ["unicodedata2"]
 
 [[package]]
 name = "django"
-version = "3.2.12"
+version = "3.2.14"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -374,7 +374,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.10"
-content-hash = "2f26fdb77987d601d92907e9c522f1254937e47c704db6748888be141ed7fb5f"
+content-hash = "b9b2b42d178dfe84ba4dd4bec2dbfbbc069e1fac4e4e0403dbe8dbe62701a429"
 
 [metadata.files]
 asgiref = [
@@ -394,8 +394,8 @@ charset-normalizer = [
     {file = "charset_normalizer-2.0.12-py3-none-any.whl", hash = "sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df"},
 ]
 django = [
-    {file = "Django-3.2.12-py3-none-any.whl", hash = "sha256:9b06c289f9ba3a8abea16c9c9505f25107809fb933676f6c891ded270039d965"},
-    {file = "Django-3.2.12.tar.gz", hash = "sha256:9772e6935703e59e993960832d66a614cf0233a1c5123bc6224ecc6ad69e41e2"},
+    {file = "Django-3.2.14-py3-none-any.whl", hash = "sha256:a8681e098fa60f7c33a4b628d6fcd3fe983a0939ff1301ecacac21d0b38bad56"},
+    {file = "Django-3.2.14.tar.gz", hash = "sha256:677182ba8b5b285a4e072f3ac17ceee6aff1b5ce77fd173cc5b6a2d3dc022fcf"},
 ]
 django-admin-sortable2 = [
     {file = "django-admin-sortable2-1.0.4.tar.gz", hash = "sha256:f96044003176c6684c5f969792ca833a505d654fa0f7b24232a0a610e4332a53"},
